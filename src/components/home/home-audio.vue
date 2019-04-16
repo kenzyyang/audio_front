@@ -1,3 +1,8 @@
+<!--
+    @author:  kenzyyang
+    @date:  2019-4-16
+    @desc:  用于展示当前社团正在录制的书籍
+-->
 <template>
     <div class="home-audio">
         <div class="title">

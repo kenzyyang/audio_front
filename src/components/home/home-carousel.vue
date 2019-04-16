@@ -1,3 +1,8 @@
+<!--
+    @author:  kenzyyang
+    @date:  2019-4-16
+    @desc:  走马灯组件，以图片形式展示当前社团的主要活动，后续可能考虑加入页面跳转，让图片对应到某个新闻文章中.
+-->
 <template>
     <div class="home-carousel">
         <!-- 走马灯，展示当前社团的主要活动 -->
@@ -44,7 +49,8 @@
         height: 400px;
         padding-top: 10px;
         padding-bottom: 10px;
-        img{
+
+        img {
             width: 100%;
         }
     }

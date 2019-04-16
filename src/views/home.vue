@@ -1,3 +1,8 @@
+<!--
+    @author:  kenzyyang
+    @date:  2019-4-16
+    @desc:  首页的整体页面构成，包含其他多个子模块。
+-->
 <template>
     <div class="home">
         <home-header></home-header>

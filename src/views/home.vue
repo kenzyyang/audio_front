@@ -35,5 +35,9 @@
     .home{
         width: 100%;
         min-width: 1200px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
     }
 </style>

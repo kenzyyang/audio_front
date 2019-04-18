@@ -124,13 +124,12 @@
                 };
             },
             login() {
-
+                // :todo 先做页面，功能暂时放置
                 const data = {
                     userName: this.loginForm.userName,
                     password: this.loginForm.password
                 };
                 login(data).then((response) => {
-                    debugger
                     if (response.status === 200 && response.data.code === 0) {
 
                     } else {

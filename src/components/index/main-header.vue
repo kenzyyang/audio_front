@@ -276,7 +276,9 @@
 
             },
             toAdmin() {
-
+                this.$router.push({
+                    path: '/admin'
+                });
             }
         },
         computed: {

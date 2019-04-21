@@ -3,7 +3,6 @@
     @date:  2019-4-16
     @desc:  首页头部，主要功能为 logo展示，跳回主页，登录注册，个人中心等。
 -->
-
 <template>
     <div class="header">
         <div class="logo" @click="returnToHome">
@@ -24,6 +23,10 @@
                         placement="bottom"
                         width="200"
                         trigger="hover">
+                    <div class="logged-item" @click="toAdmin" v-if="userRole !== 2">
+                        <i class="fa fa-user-circle"></i>
+                        <p>成员管理</p>
+                    </div>
                     <div class="logged-item" @click="toUserCenter">
                         <i class="fa fa-user-circle"></i>
                         <p>个人中心</p>
@@ -37,7 +40,7 @@
             </div>
         </div>
         <el-dialog
-                title="提示"
+                title="登录/注册"
                 :visible.sync="dialogVisible"
                 :close-on-click-modal="false"
                 @closed="dialogClosed"
@@ -55,13 +58,29 @@
                     </el-form>
                 </el-tab-pane>
                 <el-tab-pane label="注册" name="register">
-                    注册
+                    <el-form ref="registerForm" size="small" :model="registerForm" :rules="registerRules"
+                             label-width="80px"
+                             style="width: 500px;">
+                        <el-form-item label="用户名" prop="userName">
+                            <el-input v-model.trim="registerForm.userName"></el-input>
+                        </el-form-item>
+                        <el-form-item label="昵称" prop="nickName">
+                            <el-input v-model.trim="registerForm.nickName"></el-input>
+                        </el-form-item>
+                        <el-form-item label="邮箱" prop="email">
+                            <el-input v-model="registerForm.email"></el-input>
+                        </el-form-item>
+                        <el-form-item label="密码" prop="password">
+                            <el-input v-model="registerForm.password" type="password"></el-input>
+                        </el-form-item>
+                    </el-form>
                 </el-tab-pane>
             </el-tabs>
             <span slot="footer" class="dialog-footer">
                 <el-button size="small" @click="dialogVisible = false">取 消</el-button>
                 <el-button
                         v-if="activeTab === 'login'"
+                        :loading="loginBtnLoading"
                         size="small"
                         type="primary"
                         @click="login">登 录</el-button>
@@ -69,6 +88,7 @@
                         v-else
                         size="small"
                         type="primary"
+                        :loading="registerBtnLoading"
                         @click="register">注 册</el-button>
             </span>
         </el-dialog>
@@ -76,7 +96,7 @@
 </template>
 
 <script>
-    import {login} from "../../common/api/home";
+    import {login, register} from "../../common/api/home";
 
     export default {
         name: "home-header",
@@ -105,12 +125,50 @@
                         }
                     ]
                 },
+                loginBtnLoading: false,
+                // 注册表单
                 registerForm: {
                     userName: '',
                     nickName: '',
                     password: '',
                     email: ''
-                }
+                },
+                registerRules: {
+                    userName: [
+                        {
+                            required: true,
+                            message: '用户名不可为空',
+                            trigger: 'change'
+                        }
+                    ],
+                    password: [
+                        {
+                            required: true,
+                            message: '密码不可为空',
+                            trigger: 'change'
+                        }
+                    ],
+                    nickName: [
+                        {
+                            required: true,
+                            message: '昵称不可为空',
+                            trigger: 'change'
+                        }
+                    ],
+                    email: [
+                        {
+                            required: true,
+                            message: '邮箱不可为空',
+                            trigger: 'change'
+                        },
+                        {
+                            type: 'email',
+                            message: '请输入正确的邮箱',
+                            trigger: 'change'
+                        }
+                    ]
+                },
+                registerBtnLoading: false
             }
         },
         methods: {
@@ -131,27 +189,36 @@
                 };
             },
             login() {
-                let that = this;
-                const data = {
-                    userName: this.loginForm.userName,
-                    password: this.loginForm.password
-                };
-                login(data).then((response) => {
-                    if (response.status === 200 && response.data.code === 0) {
-                        // 登录成功
+                this.$refs.loginForm.validate((valid) => {
+                    if (valid) {
+                        this.loginBtnLoading = true;
                         const data = {
-                            userName: response.data.data.user.userName,
-                            token: response.data.data.token
+                            userName: this.loginForm.userName,
+                            password: this.loginForm.password
                         };
-                        this.$message.success('登录成功');
-                        this.$store.commit('USER_LOGIN', data);
-                        localStorage.setItem('userInfo', JSON.stringify(data));
-                        this.dialogVisible = false;
+                        login(data).then((response) => {
+                            if (response.status === 200 && response.data.code === 0) {
+                                // 登录成功
+                                const data = {
+                                    userName: response.data.data.user.userName,
+                                    role: response.data.data.user.role,
+                                    token: response.data.data.token
+                                };
+                                this.$message.success('登录成功');
+                                this.$store.commit('USER_LOGIN', data);
+                                localStorage.setItem('userInfo', JSON.stringify(data));
+                                this.dialogVisible = false;
+                            } else {
+                                this.$message.warning('登录失败： ' + response.data.message);
+                            }
+                        }).catch((err) => {
+                            console.log('请求出错' + err);
+                        }).finally(() => {
+                            this.loginBtnLoading = false;
+                        });
                     } else {
-                        this.$message.warning('登录失败： ' + response.data.message);
+                        this.$message.error('校验不通过');
                     }
-                }).catch((err) => {
-                    console.log('请求出错' + err);
                 });
             },
             logout() {
@@ -171,6 +238,44 @@
                 });
             },
             register() {
+                this.$refs.registerForm.validate((valid) => {
+                    if (valid) {
+                        this.registerBtnLoading = true;
+                        const data = {
+                            userName: this.registerForm.userName,
+                            password: this.registerForm.password,
+                            nickName: this.registerForm.nickName,
+                            email: this.registerForm.email
+                        };
+                        register(data).then((response) => {
+                            if (response.status === 200 && response.data.code === 0) {
+                                // 注册成功
+                                const data = {
+                                    userName: response.data.data.user.userName,
+                                    role: response.data.data.user.role,
+                                    token: response.data.data.token
+                                };
+                                this.$message.success('注册成功');
+                                this.$store.commit('USER_LOGIN', data);
+                                localStorage.setItem('userInfo', JSON.stringify(data));
+                                this.dialogVisible = false;
+                            } else {
+                                this.$message.warning('注册失败： ' + response.data.message);
+                            }
+                        }).catch((err) => {
+                            console.log('请求出错' + err);
+                        }).finally(() => {
+                            this.registerBtnLoading = false;
+                        });
+                    } else {
+                        this.$message.error('校验不通过');
+                    }
+                });
+            },
+            toUserCenter() {
+
+            },
+            toAdmin() {
 
             }
         },
@@ -183,6 +288,11 @@
             userName: {
                 get() {
                     return this.$store.state.user.userName;
+                }
+            },
+            userRole: {
+                get() {
+                    return this.$store.state.user.role;
                 }
             }
         },

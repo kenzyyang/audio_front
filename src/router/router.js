@@ -3,6 +3,7 @@ import Router from 'vue-router';
 
 //页面导入
 import home from '../views/home';
+import admin from "../views/admin";
 
 Vue.use(Router);
 
@@ -14,6 +15,11 @@ export default new Router({
             path: '/',
             name: 'home',
             component: home
+        },
+        {
+            path: '/admin',
+            name: 'admin',
+            component: admin
         }
     ]
 })

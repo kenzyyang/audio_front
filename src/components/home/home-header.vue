@@ -9,6 +9,14 @@
         <div class="logo" @click="returnToHome">
             有声小说社团
         </div>
+        <div class="tabs">
+            <div class="tab-item">
+                <p>有声书</p>
+            </div>
+            <div class="tab-item">
+                <p>最想谈</p>
+            </div>
+        </div>
         <div class="login">
             <div class="login-btn" v-if="!isLogin" @click="showDialog">登录/注册</div>
             <div v-else>
@@ -16,15 +24,15 @@
                         placement="bottom"
                         width="200"
                         trigger="hover">
-                    <div class="loged-item">
-                        <i class="el-icon-setting"></i>
+                    <div class="logged-item" @click="toUserCenter">
+                        <i class="fa fa-user-circle"></i>
                         <p>个人中心</p>
                     </div>
-                    <div class="loged-item">
-                        <i class="el-icon-delete"></i>
+                    <div class="logged-item" @click="logout">
+                        <i class="fa fa-sign-out"></i>
                         <p>注销</p>
                     </div>
-                    <p slot="reference">kenzyyang</p>
+                    <p style="cursor: pointer;" slot="reference">{{userName}}</p>
                 </el-popover>
             </div>
         </div>
@@ -76,7 +84,6 @@
             return {
                 dialogVisible: false,
                 activeTab: 'login',
-                isLogin: false,
                 // 登录表单
                 loginForm: {
                     userName: '',
@@ -124,29 +131,72 @@
                 };
             },
             login() {
-                // :todo 先做页面，功能暂时放置
+                let that = this;
                 const data = {
                     userName: this.loginForm.userName,
                     password: this.loginForm.password
                 };
                 login(data).then((response) => {
                     if (response.status === 200 && response.data.code === 0) {
-
+                        // 登录成功
+                        const data = {
+                            userName: response.data.data.user.userName,
+                            token: response.data.data.token
+                        };
+                        this.$message.success('登录成功');
+                        this.$store.commit('USER_LOGIN', data);
+                        localStorage.setItem('userInfo', JSON.stringify(data));
+                        this.dialogVisible = false;
                     } else {
-                        this.$message.warning('登录失败： '+ response.data.message);
+                        this.$message.warning('登录失败： ' + response.data.message);
                     }
                 }).catch((err) => {
                     console.log('请求出错' + err);
                 });
             },
+            logout() {
+                this.$confirm('是否确定注销?', '注销', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    localStorage.clear();
+                    this.$store.commit('USER_LOGOUT');
+                    this.$message.success('注销成功');
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消'
+                    });
+                });
+            },
             register() {
 
+            }
+        },
+        computed: {
+            isLogin: {
+                get() {
+                    return this.$store.state.user.isLogin;
+                }
+            },
+            userName: {
+                get() {
+                    return this.$store.state.user.userName;
+                }
+            }
+        },
+        mounted() {
+            // 从localstorage 里面获取用户登录信息
+            let data = JSON.parse(localStorage.getItem('userInfo'));
+            if (data !== null && data.token && data.userName) {
+                this.$store.commit('USER_LOGIN', data);
             }
         }
     }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
     .header {
         width: 100%;
         min-width: 1200px;
@@ -164,6 +214,21 @@
             cursor: pointer;
         }
 
+        .tabs {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-right: 100px;
+            flex-grow: 1;
+
+            .tab-item {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                width: 150px;
+            }
+        }
+
         .login {
             margin-right: 120px;
 
@@ -175,5 +240,38 @@
                 color: #409EFF;
             }
         }
+    }
+
+    .logged-item {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        height: 40px;
+        padding-left: 15px;
+        cursor: pointer;
+
+        i {
+            font-size: 16px;
+        }
+
+        p {
+            display: inline-block;
+            margin-left: 8px;
+            font-size: 16px;
+            font-weight: 400;
+            color: #333;
+        }
+    }
+
+    .logged-item:hover {
+        i {
+            color: #409EFF;
+        }
+
+        p {
+            color: #409EFF;
+        }
+
+        background-color: rgb(233, 233, 235);
     }
 </style>

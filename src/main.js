@@ -6,7 +6,8 @@ import store from './vuex/store';
 import ElementUi from 'element-ui';
 Vue.use(ElementUi);
 import 'element-ui/lib/theme-chalk/index.css';
-
+// 引入fa font
+import 'font-awesome/scss/font-awesome.scss';
 Vue.config.productionTip = false;
 
 new Vue({

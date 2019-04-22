@@ -183,9 +183,16 @@
             dialogClosed() {
                 // 关闭时初始化内容
                 this.$refs.loginForm.resetFields();
+                this.$refs.registerForm.resetFields();
                 this.loginForm = {
                     userName: '',
                     password: ''
+                };
+                this.register = {
+                    userName: '',
+                    password: '',
+                    nickName: '',
+                    email: ''
                 };
             },
             login() {

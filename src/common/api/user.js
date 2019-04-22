@@ -64,9 +64,52 @@ const getAllUser = (data) => {
     return axios.post(url, params);
 };
 
+/**
+ *   @author:  kenzyyang
+ *   @date:  2019-4-22
+ *   @desc:  用户信息修改接口
+ *   @method:  POST
+ *   @param:  email  string  新邮箱
+ *   @param:  nickName  string  用户昵称
+ * */
+const changeUserInfo = (data) => {
+    const url = '/user/userChangeInfo';
+    const {
+        id,
+        email,
+        nickName
+    } = data;
+    const params = {
+        id,
+        email,
+        nickName
+    };
+    return axios.post(url, params);
+};
+
+/**
+ *   @author:  kenzyyang
+ *   @date:  2019-4-22
+ *   @desc:  修改密码接口
+ *   @method:  POST
+ *   @param:  password  string  用户密码
+ * */
+const changeUserPassword = (data) => {
+    const url = '/user/userChangePassword';
+    const {password, id, role} = data;
+    const params = {
+        id,
+        role,
+        password: Sha1(password)
+    };
+    return axios.post(url, params);
+};
+
 
 export {
     login,
     register,
-    getAllUser
+    getAllUser,
+    changeUserInfo,
+    changeUserPassword
 };

@@ -1,8 +1,51 @@
 <template>
     <div class="index">
         <div class="header">
-            <el-button size="small" type="success" @click="register">新增用户</el-button>
-            
+            <el-button size="small" type="success" @click="showDialog('new')">新增用户</el-button>
+            <el-dialog
+                    :title="dialogTitle"
+                    :visible.sync="dialogVisible"
+                    :close-on-click-modal="false"
+                    @closed="dialogClosed"
+                    width="600px">
+                <el-form ref="registerForm" size="small" :model="registerForm" :rules="registerRules"
+                         label-width="80px"
+                         style="width: 500px;">
+                    <el-form-item label="用户名" prop="userName">
+                        <el-input v-model.trim="registerForm.userName" :disabled="dialogType!=='new'"></el-input>
+                    </el-form-item>
+                    <el-form-item label="昵称" prop="nickName">
+                        <el-input v-model.trim="registerForm.nickName" :disabled="dialogType==='password'"></el-input>
+                    </el-form-item>
+                    <el-form-item label="邮箱" prop="email">
+                        <el-input v-model="registerForm.email" :disabled="dialogType==='password'"></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="password" v-if="dialogType!=='change'">
+                        <el-input v-model="registerForm.password" type="password"></el-input>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+                    <el-button
+                            size="small"
+                            type="primary"
+                            :loading="registerBtnLoading"
+                            v-if="dialogType === 'new'"
+                            @click="register">注 册</el-button>
+                    <el-button
+                            size="small"
+                            type="primary"
+                            :loading="registerBtnLoading"
+                            v-else-if="dialogType === 'change'"
+                            @click="changeUserInfo">修 改</el-button>
+                    <el-button
+                            size="small"
+                            type="primary"
+                            :loading="registerBtnLoading"
+                            v-else-if="dialogType === 'password'"
+                            @click="changePassword">修 改</el-button>
+                </span>
+            </el-dialog>
         </div>
         <div class="table" style="width: 100%;">
             <el-table
@@ -32,12 +75,19 @@
                         label="操作">
                     <template slot-scope="scope">
                         <div v-if="scope.row.role !== 0">
-                            <el-button type="text" size="small">修改</el-button>
-                            <el-button type="text" size="small" v-if="userRole === 0 || scope.row.role === 2">删除</el-button>
-                            <el-button type="text" size="small" v-if="userRole === 0 && scope.row.role === 2">设为管理员</el-button>
-                            <el-button type="text" size="small" v-else-if="userRole === 0 && scope.row.role === 1">取消管理员</el-button>
+                            <el-button type="text" size="small" @click="showDialog('change',scope.row)">修改</el-button>
+                            <el-button type="text" size="small"
+                                       v-if="userRole === 0 || scope.row.role === 2"
+                                       @click="showDialog('password',scope.row)">修改密码
+                            </el-button>
+                            <el-button type="text" size="small" v-if="userRole === 0 || scope.row.role === 2">删除
+                            </el-button>
+                            <el-button type="text" size="small" v-if="userRole === 0 && scope.row.role === 2">设为管理员
+                            </el-button>
+                            <el-button type="text" size="small" v-else-if="userRole === 0 && scope.row.role === 1">
+                                取消管理员
+                            </el-button>
                         </div>
-
                     </template>
                 </el-table-column>
             </el-table>
@@ -56,13 +106,17 @@
 
 <script>
     import {
-        getAllUser
+        getAllUser,
+        register,
+        changeUserInfo,
+        changeUserPassword
     } from '../../../common/api/user';
 
     export default {
         name: "user-index",
         data() {
             return {
+                // 表格相关
                 currentPage: 1,
                 total: 100,
                 tableData: [
@@ -74,7 +128,56 @@
                     // }
                 ],
                 tableLoading: false,
-                isInit: false
+                isInit: false,
+                // 新增用户dialog
+                dialogVisible: false,
+                dialogType: 'new',
+                dialogTitle: '新增用户',
+                // 注册表单
+                registerForm: {
+                    id: '',
+                    role: '',
+                    userName: '',
+                    nickName: '',
+                    password: '',
+                    email: ''
+                },
+                registerRules: {
+                    userName: [
+                        {
+                            required: true,
+                            message: '用户名不可为空',
+                            trigger: 'change'
+                        }
+                    ],
+                    password: [
+                        {
+                            required: true,
+                            message: '密码不可为空',
+                            trigger: 'change'
+                        }
+                    ],
+                    nickName: [
+                        {
+                            required: true,
+                            message: '昵称不可为空',
+                            trigger: 'change'
+                        }
+                    ],
+                    email: [
+                        {
+                            required: true,
+                            message: '邮箱不可为空',
+                            trigger: 'change'
+                        },
+                        {
+                            type: 'email',
+                            message: '请输入正确的邮箱',
+                            trigger: 'change'
+                        }
+                    ]
+                },
+                registerBtnLoading: false
             }
         },
         methods: {
@@ -101,22 +204,129 @@
                     this.tableLoading = false;
                 });
             },
-            currentChange(val){
+            currentChange(val) {
                 this.currentPage = val;
                 this.updateTable();
             },
-            register(){
-
+            // dialog 相关
+            showDialog(type, data) {
+                this.dialogType = type;
+                if (type !== 'new') {
+                    this.registerForm.id = data.id;
+                    this.registerForm.role = data.role;
+                    this.registerForm.userName = data.userName;
+                    this.registerForm.email = data.email;
+                    this.registerForm.nickName = data.nickName;
+                    this.registerForm.password = '';
+                    if (this.dialogTitle === 'password') {
+                        this.dialogTitle = '修改密码';
+                    } else {
+                        this.dialogTitle = '修改用户信息';
+                    }
+                } else {
+                    this.dialogTitle = '新增用户';
+                }
+                this.dialogVisible = true;
+            },
+            dialogClosed() {
+                // 关闭时初始化内容
+                this.$refs.registerForm.resetFields();
+                this.registerForm = {
+                    userName: '',
+                    password: '',
+                    nickName: '',
+                    email: ''
+                };
+            },
+            register() {
+                this.$refs.registerForm.validate((valid) => {
+                    if (valid) {
+                        this.registerBtnLoading = true;
+                        const data = {
+                            userName: this.registerForm.userName,
+                            password: this.registerForm.password,
+                            nickName: this.registerForm.nickName,
+                            email: this.registerForm.email
+                        };
+                        register(data).then((response) => {
+                            if (response.status === 200 && response.data.code === 0) {
+                                // 注册成功
+                                this.$message.success('新增用户成功');
+                                this.updateTable();
+                                this.dialogVisible = false;
+                            } else {
+                                this.$message.warning('新增用户失败： ' + response.data.message);
+                            }
+                        }).catch((err) => {
+                            console.log('请求出错' + err);
+                        }).finally(() => {
+                            this.registerBtnLoading = false;
+                        });
+                    } else {
+                        this.$message.error('校验不通过');
+                    }
+                });
+            },
+            changeUserInfo() {
+                this.$refs.registerForm.validate((valid) => {
+                    if (valid) {
+                        this.registerBtnLoading = true;
+                        const data = {
+                            id: this.registerForm.id,
+                            nickName: this.registerForm.nickName,
+                            email: this.registerForm.email
+                        };
+                        changeUserInfo(data).then((response) => {
+                            if (response.status === 200 && response.data.code === 0) {
+                                this.$message.success('修改信息成功');
+                                this.updateTable();
+                                this.dialogVisible = false;
+                            } else {
+                                this.$message.warning('修改信息失败： ' + response.data.message);
+                            }
+                        }).catch((err) => {
+                            console.log('请求出错' + err);
+                        }).finally(() => {
+                            this.registerBtnLoading = false;
+                        });
+                    } else {
+                        this.$message.error('校验不通过');
+                    }
+                });
+            },
+            changePassword() {
+                this.$refs.registerForm.validate((valid) => {
+                    if (valid) {
+                        this.registerBtnLoading = true;
+                        const data = {
+                            id: this.registerForm.id,
+                            role: this.registerForm.role,
+                            password: this.registerForm.password
+                        };
+                        changeUserPassword(data).then((response) => {
+                            if (response.status === 200 && response.data.code === 0) {
+                                this.$message.success('修改密码成功');
+                                this.dialogVisible = false;
+                            } else {
+                                this.$message.warning('修改信息失败： ' + response.data.message);
+                            }
+                        }).catch((err) => {
+                            console.log('请求出错' + err);
+                        }).finally(() => {
+                            this.registerBtnLoading = false;
+                        });
+                    } else {
+                        this.$message.error('校验不通过');
+                    }
+                });
             },
             // role转换为中文
-            roleToName(role){
-                if(role === 2){
+            roleToName(role) {
+                if (role === 2) {
                     return '普通用户';
-                }
-                else if(role === 1){
+                } else if (role === 1) {
                     return '管理员';
-                }
-                else if(role === 0){
+                } else if (role === 0) {
                     return '超级管理员';
                 }
             }
@@ -135,7 +345,7 @@
         watch: {
             userLoaded: {
                 handler(val) {
-                    if (val && this.userLogin &&  !this.isInit) {
+                    if (val && this.userLogin && !this.isInit) {
                         this.updateTable();
                     }
                 }

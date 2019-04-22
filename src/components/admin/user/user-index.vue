@@ -1,13 +1,13 @@
 <template>
     <div class="index">
         <div class="header">
-            <el-button>新增用户</el-button>
+            <el-button size="small" type="success" @click="register">新增用户</el-button>
+            
         </div>
         <div class="table" style="width: 100%;">
             <el-table
                     v-loading="tableLoading"
                     :data="tableData"
-                    height="500"
                     border
                     stripe>
                 <el-table-column
@@ -23,13 +23,21 @@
                         label="邮箱">
                 </el-table-column>
                 <el-table-column
-                        prop="role"
                         label="职位">
+                    <template slot-scope="scope">
+                        <p>{{roleToName(scope.row.role)}}</p>
+                    </template>
                 </el-table-column>
                 <el-table-column
                         label="操作">
                     <template slot-scope="scope">
-                        <el-button type="text" size="small">移除</el-button>
+                        <div v-if="scope.row.role !== 0">
+                            <el-button type="text" size="small">修改</el-button>
+                            <el-button type="text" size="small" v-if="userRole === 0 || scope.row.role === 2">删除</el-button>
+                            <el-button type="text" size="small" v-if="userRole === 0 && scope.row.role === 2">设为管理员</el-button>
+                            <el-button type="text" size="small" v-else-if="userRole === 0 && scope.row.role === 1">取消管理员</el-button>
+                        </div>
+
                     </template>
                 </el-table-column>
             </el-table>
@@ -73,7 +81,7 @@
             updateTable() {
                 this.tableLoading = true;
                 let data = {
-                    currentPage: 1,
+                    currentPage: this.currentPage,
                     currentSize: 10
                 };
                 getAllUser(data).then((response) => {
@@ -92,6 +100,25 @@
                 }).finally(() => {
                     this.tableLoading = false;
                 });
+            },
+            currentChange(val){
+                this.currentPage = val;
+                this.updateTable();
+            },
+            register(){
+
+            },
+            // role转换为中文
+            roleToName(role){
+                if(role === 2){
+                    return '普通用户';
+                }
+                else if(role === 1){
+                    return '管理员';
+                }
+                else if(role === 0){
+                    return '超级管理员';
+                }
             }
         },
         computed: {
@@ -100,6 +127,9 @@
             },
             userLoaded() {
                 return this.$store.state.user.isLoaded;
+            },
+            userRole() {
+                return this.$store.state.user.role;
             }
         },
         watch: {

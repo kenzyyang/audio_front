@@ -46,6 +46,10 @@
 </template>
 
 <script>
+    import {
+        getAllUser
+    } from '../../../common/api/user';
+
     export default {
         name: "user-index",
         data() {
@@ -64,8 +68,19 @@
         },
         methods: {
             updateTable(){
+                let data = {
+                    currentPage: 1,
+                    currentSize: 10
+                };
+                getAllUser(data).then((response)=>{
+                    console.log(response);
+                }).catch((err)=>{
 
+                });
             }
+        },
+        mounted() {
+            this.updateTable();
         }
     }
 </script>

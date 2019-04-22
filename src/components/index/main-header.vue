@@ -96,7 +96,7 @@
 </template>
 
 <script>
-    import {login, register} from "../../common/api/home";
+    import {login, register} from "../../common/api/user";
 
     export default {
         name: "home-header",
@@ -301,9 +301,12 @@
         mounted() {
             // 从localstorage 里面获取用户登录信息
             let data = JSON.parse(localStorage.getItem('userInfo'));
+            // :todo 判断时间
             if (data !== null && data.token && data.userName) {
                 this.$store.commit('USER_LOGIN', data);
             }
+            // 表明登录状态已经完成，可以开始判断权限
+            this.$store.commit('USER_LOAD');
         }
     }
 </script>

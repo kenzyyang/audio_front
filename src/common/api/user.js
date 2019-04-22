@@ -3,13 +3,13 @@
  * @date:  2019-4-16
  * @desc:  首页的所有api均从此文件导出
  * */
-import axios from "axios";
+import axios from "./audio-axios";
 // 密码加密手段，数据库不存明文，使用sha1 进行不可逆的密码加密
 import Sha1 from 'sha1';
-
+// 引入store中的token
+import store from '../../vuex/store';
 // 测试阶段host写死
 let host = 'http://localhost:3000';
-
 
 /**
  * @method:  POST
@@ -47,8 +47,26 @@ const register = (data) => {
     return axios.post(url, params);
 };
 
+/**
+ * @method:  POST
+ * @author:  kenzyyang
+ * @desc:  用户列表分页接口
+ * @param:  currentPage string  当前页
+ * @param:  currentSize string  当前页尺寸
+ * */
+const getAllUser = (data) => {
+    const url = host + '/user/getAllUser';
+    const {currentPage, currentSize} = data;
+    const params = {
+        currentPage,
+        currentSize
+    };
+    return axios.post(url, params);
+};
+
 
 export {
     login,
-    register
+    register,
+    getAllUser
 };

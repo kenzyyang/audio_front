@@ -37,6 +37,37 @@
                     path: '/admin/' + val
                 });
             }
+        },
+        computed: {
+            userRole() {
+                return this.$store.state.user.role;
+            },
+            userLoaded() {
+                return this.$store.state.user.isLoaded;
+            }
+        },
+        watch: {
+            userLoaded: {
+                handler(val){
+                    if(val){
+                        if (this.userLoaded && this.userRole === 2) {
+                            this.$message.warning('您无权限查看此页面');
+                            this.$router.push({
+                                path: '/home'
+                            });
+                        }
+                    }
+                }
+            }
+        },
+        created() {
+            if (this.userLoaded && this.userRole === 2) {
+                this.$message.warning('您无权限查看此页面');
+                this.$router.push({
+                    path: '/home'
+                });
+            }
+
         }
     }
 </script>
@@ -77,6 +108,7 @@
         .el-menu {
             border-right: 0;
         }
+
         .el-menu-item {
             width: 200px;
         }

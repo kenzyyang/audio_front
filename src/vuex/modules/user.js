@@ -22,6 +22,9 @@ export default {
             state.token = '';
             state.role = USER;
             state.isLogin = false;
+        },
+        USER_LOAD(state){
+            state.isLoaded = true;
         }
     },
     action: {}

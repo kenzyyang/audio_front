@@ -325,22 +325,33 @@
                 });
             },
             userDelete(row) {
-                this.tableLoading = true;
-                const data = {
-                    id: row.id,
-                    role: row.role
-                };
-                userDelete(data).then((response) => {
-                    if (response.status === 200 && response.data.code === 0) {
-                        this.$message.success('删除成功');
-                        this.updateTable();
-                    } else {
-                        this.$message.warning('删除用户失败: ' + response.data.message);
+                this.$confirm(`是否删除用户 ${row.nickName}?`, '删除', {
+                    confirmButtonText: '删除',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.tableLoading = true;
+                    const data = {
+                        id: row.id,
+                        role: row.role
+                    };
+                    userDelete(data).then((response) => {
+                        if (response.status === 200 && response.data.code === 0) {
+                            this.$message.success('删除成功');
+                            this.updateTable();
+                        } else {
+                            this.$message.warning('删除用户失败: ' + response.data.message);
+                            this.tableLoading = false;
+                        }
+                    }).catch((err) => {
+                        console.log('删除用户失败: ' + response.data.message);
                         this.tableLoading = false;
-                    }
-                }).catch((err) => {
-                    console.log('删除用户失败: ' + response.data.message);
-                    this.tableLoading = false;
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消'
+                    });
                 });
             },
             userSetAdmin(bool, row) {

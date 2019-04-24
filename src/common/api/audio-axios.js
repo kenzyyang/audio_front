@@ -18,7 +18,7 @@ axios.interceptors.request.use((request) => {
 
 axios.interceptors.response.use((response) => {
     // 认证失败
-    if (response.status === 200 && response.data.code === -3) {
+    if (response === undefined || response.status === 200 && response.data.code === -3) {
         Message.error('未登录或登录信息过期，请重新登录');
         store.commit('USER_LOGOUT');
         localStorage.clear();

@@ -83,9 +83,11 @@
                             <el-button type="text" size="small" @click="userDelete(scope.row)"
                                        v-if="scope.row.role === 2">删除
                             </el-button>
-                            <el-button type="text" size="small" v-if="userRole === 0 && scope.row.role === 2">设为管理员
+                            <el-button type="text" size="small" @click="userSetAdmin(true,scope.row)"
+                                       v-if="userRole === 0 && scope.row.role === 2">设为管理员
                             </el-button>
-                            <el-button type="text" size="small" v-else-if="userRole === 0 && scope.row.role === 1">
+                            <el-button type="text" size="small" @click="userSetAdmin(false,scope.row)"
+                                       v-else-if="userRole === 0 && scope.row.role === 1">
                                 取消管理员
                             </el-button>
                         </div>
@@ -111,7 +113,7 @@
         register,
         changeUserInfo,
         changeUserPassword,
-        userDelete
+        userDelete, userSertAdmin
     } from '../../../common/api/user';
 
     export default {
@@ -338,6 +340,25 @@
                     }
                 }).catch((err) => {
                     console.log('删除用户失败: ' + response.data.message);
+                    this.tableLoading = false;
+                });
+            },
+            userSetAdmin(bool, row) {
+                this.tableLoading = true;
+                const data = {
+                    id: row.id,
+                    role: bool ? 1 : 2
+                };
+                userSertAdmin(data).then((response) => {
+                    if (response.status === 200 && response.data.code === 0) {
+                        this.$message.success('操作成功');
+                        this.updateTable();
+                    } else {
+                        this.$message.warning('操作失败: ' + response.data.message);
+                        this.tableLoading = false;
+                    }
+                }).catch((err) => {
+                    console.log('操作失败: ' + err);
                     this.tableLoading = false;
                 });
             },

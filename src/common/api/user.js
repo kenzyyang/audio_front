@@ -123,6 +123,24 @@ const userDelete = (data) => {
     return axios.post(url,params);
 };
 
+/**
+ *  @author:  kenzyyang
+ *  @date:  2019-4-24
+ *  @desc:  设置为管理员，以及取消管理员接口
+ *  @method: POST
+ *  @param: id  number  用户id
+ *  @param: role  number  设置的编号
+ * */
+const userSertAdmin = (data) => {
+    const url = '/user/userSetAdmin';
+    const {id,role} = data;
+    const params = {
+        id,
+        role
+    };
+    return axios.post(url,params);
+};
+
 
 export {
     login,
@@ -130,5 +148,6 @@ export {
     getAllUser,
     changeUserInfo,
     changeUserPassword,
-    userDelete
+    userDelete,
+    userSertAdmin
 };

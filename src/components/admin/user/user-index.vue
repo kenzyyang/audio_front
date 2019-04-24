@@ -80,7 +80,8 @@
                                        v-if="userRole === 0 || scope.row.role === 2"
                                        @click="showDialog('password',scope.row)">修改密码
                             </el-button>
-                            <el-button type="text" size="small" v-if="userRole === 0 || scope.row.role === 2">删除
+                            <el-button type="text" size="small" @click="userDelete(scope.row)"
+                                       v-if="scope.row.role === 2">删除
                             </el-button>
                             <el-button type="text" size="small" v-if="userRole === 0 && scope.row.role === 2">设为管理员
                             </el-button>
@@ -109,7 +110,8 @@
         getAllUser,
         register,
         changeUserInfo,
-        changeUserPassword
+        changeUserPassword,
+        userDelete
     } from '../../../common/api/user';
 
     export default {
@@ -318,6 +320,25 @@
                     } else {
                         this.$message.error('校验不通过');
                     }
+                });
+            },
+            userDelete(row) {
+                this.tableLoading = true;
+                const data = {
+                    id: row.id,
+                    role: row.role
+                };
+                userDelete(data).then((response) => {
+                    if (response.status === 200 && response.data.code === 0) {
+                        this.$message.success('删除成功');
+                        this.updateTable();
+                    } else {
+                        this.$message.warning('删除用户失败: ' + response.data.message);
+                        this.tableLoading = false;
+                    }
+                }).catch((err) => {
+                    console.log('删除用户失败: ' + response.data.message);
+                    this.tableLoading = false;
                 });
             },
             // role转换为中文

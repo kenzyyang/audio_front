@@ -105,11 +105,30 @@ const changeUserPassword = (data) => {
     return axios.post(url, params);
 };
 
+/**
+ *  @author:  kenzyyang
+ *  @date: 2019-4-24
+ *  @desc:  用户删除接口
+ *  @method: POST
+ *  @param: id number  用户id
+ *  @param: role  number  用户权限id
+ * */
+const userDelete = (data) => {
+    const url = '/user/userDelete';
+    const {id,role} = data;
+    const params = {
+      id,
+      role
+    };
+    return axios.post(url,params);
+};
+
 
 export {
     login,
     register,
     getAllUser,
     changeUserInfo,
-    changeUserPassword
+    changeUserPassword,
+    userDelete
 };

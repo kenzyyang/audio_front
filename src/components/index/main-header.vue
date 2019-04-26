@@ -9,11 +9,28 @@
             有声小说社团
         </div>
         <div class="tabs">
-            <div class="tab-item">
-                <p>有声书</p>
+            <div class="tab-item" :class="{
+                'tab-item_active': activeHeaderTab === 'home'
+            }"
+                 @click="headerTabClick('home')"
+                 style="margin-right: 70px;">
+                <i class="fa fa-home"></i>
+                <p>首页</p>
             </div>
-            <div class="tab-item">
-                <p>最想谈</p>
+            <div class="tab-item " :class="{
+                'tab-item_active': activeHeaderTab === 'news'
+            }"
+                 @click="headerTabClick('news')"
+                 style="margin-right: 70px;">
+                <i class="fa fa-newspaper-o"></i>
+                <p>新闻</p>
+            </div>
+            <div class="tab-item" :class="{
+                'tab-item_active': activeHeaderTab === 'audio'
+            }"
+                 @click="headerTabClick('audio')">
+                <i class="fa fa-volume-up"></i>
+                <p>有声书</p>
             </div>
         </div>
         <div class="login">
@@ -168,7 +185,7 @@
                         }
                     ]
                 },
-                registerBtnLoading: false
+                registerBtnLoading: false,
             }
         },
         methods: {
@@ -286,6 +303,26 @@
                 this.$router.push({
                     path: '/admin'
                 });
+            },
+            headerTabClick(tabName){
+                if(tabName === 'home'){
+                    this.$store.commit('CHANGE_ACTIVE_TAB','home');
+                    this.$router.push({
+                        path: '/home'
+                    });
+                }
+                else if(tabName === 'news'){
+                    this.$store.commit('CHANGE_ACTIVE_TAB','news');
+                    this.$router.push({
+                        path: '/news'
+                    });
+                }
+                else if(tabName === 'audio'){
+                    this.$store.commit('CHANGE_ACTIVE_TAB','audio');
+                    this.$router.push({
+                        path: '/audio'
+                    });
+                }
             }
         },
         computed: {
@@ -303,6 +340,11 @@
                 get() {
                     return this.$store.state.user.role;
                 }
+            },
+            activeHeaderTab: {
+                get(){
+                    return this.$store.state.header.activeTab;
+                }
             }
         },
         mounted() {
@@ -314,6 +356,16 @@
             }
             // 表明登录状态已经完成，可以开始判断权限
             this.$store.commit('USER_LOAD');
+            // 判断当前header 激活态
+            if(/\/#\/home/.test(location.href)){
+                this.headerTabClick('home');
+            }
+            else if(/\/#\/news/.test(location.href)){
+                this.headerTabClick('news');
+            }
+            else if(/\/#\/audio/.test(location.href)){
+                this.headerTabClick('audio');
+            }
         }
     }
 </script>
@@ -342,12 +394,36 @@
             align-items: center;
             margin-right: 100px;
             flex-grow: 1;
-
             .tab-item {
                 display: inline-flex;
                 justify-content: center;
                 align-items: center;
-                width: 150px;
+                width: 40px;
+                flex-wrap:  wrap;
+                padding-top: 5px;
+                cursor: pointer;
+                i{
+                    width: 100%;
+                    text-align: center;
+                    font-size: 20px;
+                    color: #ccc;
+                }
+                p{
+                    font-size: 12px;
+                    color: #888;
+                    font-weight: 400;
+                    margin-top: 3px;
+                }
+            }
+            .tab-item:hover{
+                i{
+                    color: #409EFF;
+                }
+            }
+            .tab-item_active{
+                i{
+                    color: #409EFF;
+                }
             }
         }
 

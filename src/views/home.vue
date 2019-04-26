@@ -6,14 +6,14 @@
 <template>
     <div class="home">
         <home-carousel></home-carousel>
-        <home-notice></home-notice>
-        <home-audio></home-audio>
+        <home-introduce></home-introduce>
     </div>
 </template>
 
 <script>
     import homeCarousel from "../components/home/home-carousel";
     import homeNotice from "../components/home/home-notice";
+    import homeIntroduce from "../components/home/home-introduce";
     import homeAudio from "../components/home/home-audio";
 
     export default {
@@ -25,6 +25,7 @@
         components: {
             homeCarousel,
             homeNotice,
+            homeIntroduce,
             homeAudio
         }
     }

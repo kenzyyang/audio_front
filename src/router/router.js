@@ -7,8 +7,11 @@ import home from '../views/home';
 import admin from "../views/admin";
 // admin
 import user from '../components/admin/user/user-index';
-import news from '../components/admin/news/news-index';
-import audio from '../components/admin/audio/audio-index';
+import adminNews from '../components/admin/news/news-index';
+import adminAudio from '../components/admin/audio/audio-index';
+// home
+import homeNews from '../components/news/index';
+import homeAudio from '../components/home/audio/audio-index';
 
 Vue.use(Router);
 
@@ -25,7 +28,7 @@ export default new Router({
                 {
                     path: '/home',
                     name: 'home',
-                    component: home
+                    component: home,
                 },
                 {
                     path: '/admin',
@@ -39,18 +42,29 @@ export default new Router({
                             component: user
                         },
                         {
-                            path: 'news',
+                            path: 'news ',
                             name: 'news',
-                            component: news
+                            component: adminNews
                         },
                         {
                             path: 'audio',
                             name: 'audio',
-                            component: audio
+                            component: adminAudio
                         }
                     ]
+                },
+                {
+                    path: 'news',
+                    name: 'news',
+                    component: homeNews
+                },
+                {
+                    path: 'audio',
+                    name: 'audio',
+                    component: homeAudio
                 }
             ]
-        }
+        },
+
     ]
 })

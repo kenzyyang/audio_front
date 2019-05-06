@@ -1,51 +1,58 @@
 <template>
     <div class="index">
         <div class="header">
-            <el-button size="small" type="success" @click="showDialog('new')">新增用户</el-button>
-<!--            <el-dialog-->
-<!--                    :title="dialogTitle"-->
-<!--                    :visible.sync="dialogVisible"-->
-<!--                    :close-on-click-modal="false"-->
-<!--                    @closed="dialogClosed"-->
-<!--                    width="600px">-->
-<!--                <el-form ref="addAudioForm" size="small" :model="registerForm" :rules="registerRules"-->
-<!--                         label-width="80px"-->
-<!--                         style="width: 500px;">-->
-<!--                    <el-form-item label="用户名" prop="userName">-->
-<!--                        <el-input v-model.trim="registerForm.userName" :disabled="dialogType!=='new'"></el-input>-->
-<!--                    </el-form-item>-->
-<!--                    <el-form-item label="昵称" prop="nickName">-->
-<!--                        <el-input v-model.trim="registerForm.nickName" :disabled="dialogType==='password'"></el-input>-->
-<!--                    </el-form-item>-->
-<!--                    <el-form-item label="邮箱" prop="email">-->
-<!--                        <el-input v-model="registerForm.email" :disabled="dialogType==='password'"></el-input>-->
-<!--                    </el-form-item>-->
-<!--                    <el-form-item label="密码" prop="password" v-if="dialogType!=='change'">-->
-<!--                        <el-input v-model="registerForm.password" type="password"></el-input>-->
-<!--                    </el-form-item>-->
-<!--                </el-form>-->
-<!--                <span slot="footer" class="dialog-footer">-->
-<!--                    <el-button size="small" @click="dialogVisible = false">取 消</el-button>-->
-<!--                    <el-button-->
-<!--                            size="small"-->
-<!--                            type="primary"-->
-<!--                            :loading="registerBtnLoading"-->
-<!--                            v-if="dialogType === 'new'"-->
-<!--                            @click="register">注 册</el-button>-->
-<!--                    <el-button-->
-<!--                            size="small"-->
-<!--                            type="primary"-->
-<!--                            :loading="registerBtnLoading"-->
-<!--                            v-else-if="dialogType === 'change'"-->
-<!--                            @click="changeUserInfo">修 改</el-button>-->
-<!--                    <el-button-->
-<!--                            size="small"-->
-<!--                            type="primary"-->
-<!--                            :loading="registerBtnLoading"-->
-<!--                            v-else-if="dialogType === 'password'"-->
-<!--                            @click="changePassword">修 改</el-button>-->
-<!--                </span>-->
-<!--            </el-dialog>-->
+            <el-button size="small" type="success" @click="showDialog('new')">新增有声书</el-button>
+            <el-dialog
+                    :title="dialogTitle"
+                    :visible.sync="dialogVisible"
+                    :close-on-click-modal="false"
+                    @closed="dialogClosed"
+                    width="600px">
+                <el-form ref="addAudioForm" size="small" :model="addAudioForm" :rules="addAudioRules"
+                         label-width="80px"
+                         style="width: 500px;">
+                    <el-form-item label="书名" prop="audioName">
+                        <el-input v-model.trim="addAudioForm.audioName" :disabled="dialogType!=='new'"></el-input>
+                    </el-form-item>
+                    <el-form-item label="类型" prop="audioType">
+                        <el-select v-model.trim="addAudioForm.audioType">
+                            <el-option label="英文" :value="1"></el-option>
+                            <el-option label="中文" :value="2"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="封面">
+                        <el-upload
+                                action="123"
+                                ref="coverUpload"
+                                :on-change="coverChange"
+                                :on-remove="coverChange"
+                                :limit="1"
+                                :on-exceed="coverExceed"
+                                accept="image/jpg,image/jpeg"
+                                :auto-upload="false"
+                                :before-upload="coverValidate"
+                                list-type="picture">
+                            <el-button size="small" type="primary" :disabled="coverList.length>=1">点击上传</el-button>
+                            <div slot="tip">只能上传jpg格式图片,且不超过2M</div>
+                        </el-upload>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button size="small" @click="dialogVisible = false">取 消</el-button>
+                    <el-button
+                            size="small"
+                            type="primary"
+                            :loading="addAudioBtnLoading"
+                            v-if="dialogType === 'new'"
+                            @click="addAudio">新 增</el-button>
+                    <el-button
+                            size="small"
+                            type="primary"
+                            :loading="addAudioBtnLoading"
+                            v-else-if="dialogType === 'change'"
+                            @click="changeAudio">修 改</el-button>
+                </span>
+            </el-dialog>
         </div>
         <div class="table" style="width: 100%;">
             <el-table
@@ -97,12 +104,9 @@
 
 <script>
     import {
-        getAllUser,
-        register,
-        changeUserInfo,
-        changeUserPassword,
-        userDelete, userSertAdmin
-    } from '../../../common/api/user';
+        addAudio
+    } from '../../../common/api/audio';
+
 
     export default {
         name: "user-index",
@@ -110,13 +114,12 @@
             return {
                 // 表格相关
                 currentPage: 1,
-                total: 100,
+                total: 0,
                 tableData: [
                     // {
-                    //     userName: 'kenzyyang',
-                    //     nickName: '123',
-                    //     email: '827506072@qq.com',
-                    //     role: 2
+                    //     id: 1,
+                    //     audioName: '123',
+                    //     audioType: '827506072@qq.com'
                     // }
                 ],
                 tableLoading: false,
@@ -124,52 +127,31 @@
                 // 新增用户dialog
                 dialogVisible: false,
                 dialogType: 'new',
-                dialogTitle: '新增用户',
+                dialogTitle: '新 增',
                 // 注册表单
-                registerForm: {
+                addAudioForm: {
                     id: '',
-                    role: '',
-                    userName: '',
-                    nickName: '',
-                    password: '',
-                    email: ''
+                    audioName: '',
+                    audioType: 1,
                 },
-                registerRules: {
-                    userName: [
+                addAudioRules: {
+                    audioName: [
                         {
                             required: true,
-                            message: '用户名不可为空',
+                            message: '有声书名称不可为空',
                             trigger: 'change'
                         }
                     ],
-                    password: [
+                    audioType: [
                         {
                             required: true,
-                            message: '密码不可为空',
-                            trigger: 'change'
-                        }
-                    ],
-                    nickName: [
-                        {
-                            required: true,
-                            message: '昵称不可为空',
-                            trigger: 'change'
-                        }
-                    ],
-                    email: [
-                        {
-                            required: true,
-                            message: '邮箱不可为空',
-                            trigger: 'change'
-                        },
-                        {
-                            type: 'email',
-                            message: '请输入正确的邮箱',
+                            message: '请选择有声书类型',
                             trigger: 'change'
                         }
                     ]
                 },
-                registerBtnLoading: false
+                coverList: [],
+                addAudioBtnLoading: false
             }
         },
         methods: {
@@ -179,22 +161,22 @@
                     currentPage: this.currentPage,
                     currentSize: 10
                 };
-                getAllUser(data).then((response) => {
-                    if (response.status === 200 && response.data.code === 0) {
-                        const result = response.data.data;
-                        let tableData = [];
-                        this.total = result.count;
-                        for (let i in result.list) {
-                            tableData.push(result.list[i]);
-                        }
-                        this.tableData.splice(0);
-                        this.tableData.push(...tableData);
-                    }
-                }).catch((err) => {
-                    console.log('请求用户信息失败: ', err);
-                }).finally(() => {
-                    this.tableLoading = false;
-                });
+                // getAllUser(data).then((response) => {
+                //     if (response.status === 200 && response.data.code === 0) {
+                //         const result = response.data.data;
+                //         let tableData = [];
+                //         this.total = result.count;
+                //         for (let i in result.list) {
+                //             tableData.push(result.list[i]);
+                //         }
+                //         this.tableData.splice(0);
+                //         this.tableData.push(...tableData);
+                //     }
+                // }).catch((err) => {
+                //     console.log('请求用户信息失败: ', err);
+                // }).finally(() => {
+                //     this.tableLoading = false;
+                // });
             },
             currentChange(val) {
                 this.currentPage = val;
@@ -204,113 +186,92 @@
             showDialog(type, data) {
                 this.dialogType = type;
                 if (type !== 'new') {
-                    this.registerForm.id = data.id;
-                    this.registerForm.role = data.role;
-                    this.registerForm.userName = data.userName;
-                    this.registerForm.email = data.email;
-                    this.registerForm.nickName = data.nickName;
-                    this.registerForm.password = '';
-                    if (this.dialogTitle === 'password') {
-                        this.dialogTitle = '修改密码';
-                    } else {
-                        this.dialogTitle = '修改用户信息';
-                    }
+                    this.dialogTitle = '编 辑';
+                    this.addAudioForm.id = data.id;
+                    this.addAudioForm.audioName = data.audioName;
+                    this.addAudioForm.audioType = data.audioType;
                 } else {
-                    this.dialogTitle = '新增用户';
+                    this.dialogTitle = '新 增';
                 }
                 this.dialogVisible = true;
             },
             dialogClosed() {
                 // 关闭时初始化内容
-                this.$refs.registerForm.resetFields();
-                this.registerForm = {
-                    userName: '',
-                    password: '',
-                    nickName: '',
-                    email: ''
+                this.$refs.addAudioForm.resetFields();
+                this.addAudioForm = {
+                    id: '',
+                    audioName: '',
+                    audioType: 1,
                 };
+                this.coverList.splice(0);
+                this.$refs.coverUpload.clearFiles();
             },
-            register() {
-                this.$refs.registerForm.validate((valid) => {
+            addAudio() {
+                this.$refs.addAudioForm.validate((valid) => {
                     if (valid) {
-                        this.registerBtnLoading = true;
+                        if (this.coverList.length !== 1) {
+                            this.$message.warning('请选择封面图片');
+                            return;
+                        }
+                        this.addAudioBtnLoading = true;
+                        console.log(this.coverList[0].raw);
                         const data = {
-                            userName: this.registerForm.userName,
-                            password: this.registerForm.password,
-                            nickName: this.registerForm.nickName,
-                            email: this.registerForm.email
+                            id: this.addAudioForm.id,
+                            audioName: this.addAudioForm.audioName,
+                            audioType: this.addAudioForm.audioType,
+                            cover: this.coverList[0].raw
                         };
-                        register(data).then((response) => {
+                        addAudio(data).then((response) => {
                             if (response.status === 200 && response.data.code === 0) {
-                                // 注册成功
-                                this.$message.success('新增用户成功');
-                                this.updateTable();
-                                this.dialogVisible = false;
+
                             } else {
-                                this.$message.warning('新增用户失败： ' + response.data.message);
+                                this.$message.warning('有声书新增失败: ' + response.data.message);
                             }
                         }).catch((err) => {
-                            console.log('请求出错' + err);
-                        }).finally(() => {
-                            this.registerBtnLoading = false;
+                            console.log('有声书新增失败: ', err);
+                        }).finally(()=>{
+                            this.addAudioBtnLoading = false;
                         });
                     } else {
                         this.$message.error('校验不通过');
                     }
                 });
             },
-            changeUserInfo() {
-                this.$refs.registerForm.validate((valid) => {
+            changeAudio() {
+                this.$refs.addAudioForm.validate((valid) => {
                     if (valid) {
-                        this.registerBtnLoading = true;
+                        this.addAudioBtnLoading = true;
                         const data = {
-                            id: this.registerForm.id,
-                            nickName: this.registerForm.nickName,
-                            email: this.registerForm.email
+                            id: this.addAudioForm.id,
+                            audioName: this.addAudioForm.audioName,
+                            audioType: this.addAudioForm.audioType
                         };
-                        changeUserInfo(data).then((response) => {
-                            if (response.status === 200 && response.data.code === 0) {
-                                this.$message.success('修改信息成功');
-                                this.updateTable();
-                                this.dialogVisible = false;
-                            } else {
-                                this.$message.warning('修改信息失败： ' + response.data.message);
-                            }
-                        }).catch((err) => {
-                            console.log('请求出错' + err);
-                        }).finally(() => {
-                            this.registerBtnLoading = false;
-                        });
+                        console.log(JSON.stringify(data), null, 4);
                     } else {
                         this.$message.error('校验不通过');
                     }
                 });
             },
-            changePassword() {
-                this.$refs.registerForm.validate((valid) => {
-                    if (valid) {
-                        this.registerBtnLoading = true;
-                        const data = {
-                            id: this.registerForm.id,
-                            role: this.registerForm.role,
-                            password: this.registerForm.password
-                        };
-                        changeUserPassword(data).then((response) => {
-                            if (response.status === 200 && response.data.code === 0) {
-                                this.$message.success('修改密码成功');
-                                this.dialogVisible = false;
-                            } else {
-                                this.$message.warning('修改信息失败： ' + response.data.message);
-                            }
-                        }).catch((err) => {
-                            console.log('请求出错' + err);
-                        }).finally(() => {
-                            this.registerBtnLoading = false;
-                        });
-                    } else {
-                        this.$message.error('校验不通过');
-                    }
-                });
+            // 文件上传相关
+            coverExceed() {
+                this.$message.warning('只能上传一张图片');
+            },
+            coverChange(file, fileList) {
+                this.coverList.splice(0);
+                this.coverList.push(...fileList);
+            },
+            coverValidate() {
+                // 检查文件类型和大小
+                if (file.type !== 'image/jpg' || file.type !== 'image/jpeg') {
+                    this.$message.warning('图片仅支持 jpg/jpeg 格式');
+                    fileList.splice(0);
+                    return false;
+                }
+                if (file.size / 1024 / 1024 > 2) {
+                    this.$message.warning('图片大小不要超过2M');
+                    fileList.splice(0);
+                    return false;
+                }
             },
             userDelete(row) {
                 this.$confirm(`是否删除用户 ${row.nickName}?`, '删除', {

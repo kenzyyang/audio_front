@@ -104,7 +104,8 @@
 
 <script>
     import {
-        addAudio
+        addAudio,
+        getAllAudio
     } from '../../../common/api/audio';
 
 
@@ -161,22 +162,22 @@
                     currentPage: this.currentPage,
                     currentSize: 10
                 };
-                // getAllUser(data).then((response) => {
-                //     if (response.status === 200 && response.data.code === 0) {
-                //         const result = response.data.data;
-                //         let tableData = [];
-                //         this.total = result.count;
-                //         for (let i in result.list) {
-                //             tableData.push(result.list[i]);
-                //         }
-                //         this.tableData.splice(0);
-                //         this.tableData.push(...tableData);
-                //     }
-                // }).catch((err) => {
-                //     console.log('请求用户信息失败: ', err);
-                // }).finally(() => {
-                //     this.tableLoading = false;
-                // });
+                getAllAudio(data).then((response) => {
+                    if (response.status === 200 && response.data.code === 0) {
+                        const result = response.data.data;
+                        let tableData = [];
+                        this.total = result.count;
+                        for (let i in result.list) {
+                            tableData.push(result.list[i]);
+                        }
+                        this.tableData.splice(0);
+                        this.tableData.push(...tableData);
+                    }
+                }).catch((err) => {
+                    console.log('请求有声书信息失败: ', err);
+                }).finally(() => {
+                    this.tableLoading = false;
+                });
             },
             currentChange(val) {
                 this.currentPage = val;

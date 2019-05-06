@@ -25,6 +25,21 @@ const addAudio = (data) => {
     });
 };
 
+/**
+ *  @method:  POST
+ *  @desc:  获取所有有声书接口
+ * */
+const getAllAudio = (data) => {
+    const url = '/audio/audioGetAll';
+    const {currentPage} = data;
+    const params = {
+        currentPage: currentPage,
+        currentSize: 10
+    };
+    return axios.post(url, params);
+};
+
 export {
     addAudio,
+    getAllAudio
 };

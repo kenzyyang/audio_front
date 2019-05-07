@@ -84,7 +84,7 @@
                         label="操作">
                     <template slot-scope="scope">
                         <el-button type="text" size="small" @click="showDialog('change',scope.row)">修改</el-button>
-                        <el-button type="text" size="small" @click="userDelete(scope.row)">删除
+                        <el-button type="text" size="small" @click="audioDelete(scope.row)">删除
                         </el-button>
                     </template>
                 </el-table-column>
@@ -105,7 +105,8 @@
 <script>
     import {
         addAudio,
-        getAllAudio
+        getAllAudio,
+        deleteAudio
     } from '../../../common/api/audio';
 
 
@@ -215,7 +216,6 @@
                             return;
                         }
                         this.addAudioBtnLoading = true;
-                        console.log(this.coverList[0].raw);
                         const data = {
                             id: this.addAudioForm.id,
                             audioName: this.addAudioForm.audioName,
@@ -224,13 +224,15 @@
                         };
                         addAudio(data).then((response) => {
                             if (response.status === 200 && response.data.code === 0) {
-
+                                this.dialogVisible = false;
+                                this.$message.success('新增有声书成功');
+                                this.updateTable();
                             } else {
                                 this.$message.warning('有声书新增失败: ' + response.data.message);
                             }
                         }).catch((err) => {
                             console.log('有声书新增失败: ', err);
-                        }).finally(()=>{
+                        }).finally(() => {
                             this.addAudioBtnLoading = false;
                         });
                     } else {
@@ -274,8 +276,8 @@
                     return false;
                 }
             },
-            userDelete(row) {
-                this.$confirm(`是否删除用户 ${row.nickName}?`, '删除', {
+            audioDelete(row) {
+                this.$confirm(`是否删除有声书 ${row.audioName}?`, '删除', {
                     confirmButtonText: '删除',
                     cancelButtonText: '取消',
                     type: 'warning'
@@ -285,16 +287,16 @@
                         id: row.id,
                         role: row.role
                     };
-                    userDelete(data).then((response) => {
+                    deleteAudio(data).then((response) => {
                         if (response.status === 200 && response.data.code === 0) {
                             this.$message.success('删除成功');
                             this.updateTable();
                         } else {
-                            this.$message.warning('删除用户失败: ' + response.data.message);
+                            this.$message.warning('删除有声书失败: ' + response.data.message);
                             this.tableLoading = false;
                         }
                     }).catch((err) => {
-                        console.log('删除用户失败: ' + response.data.message);
+                        console.log('删除有声书失败: ' + response.data.message);
                         this.tableLoading = false;
                     });
                 }).catch(() => {

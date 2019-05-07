@@ -39,7 +39,23 @@ const getAllAudio = (data) => {
     return axios.post(url, params);
 };
 
+/**
+ *  @method:  POST
+ *  @desc:  删除有声书接口，仅超级管理员可使用
+ *  @param:  id  number  有声书id
+ * */
+const deleteAudio = (data) => {
+    const url = '/audio/audioDelete';
+    const {id } =  data;
+    const params = {
+        id
+    };
+    return axios.post(url, params);
+};
+
+
 export {
     addAudio,
-    getAllAudio
+    getAllAudio,
+    deleteAudio
 };

@@ -61,8 +61,8 @@
                     border
                     stripe>
                 <el-table-column
-                        prop="chapter"
-                        label="章节序号">
+                        prop="id"
+                        label="编号">
                 </el-table-column>
                 <el-table-column
                         prop="audioType"

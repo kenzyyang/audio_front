@@ -1,6 +1,7 @@
 <template>
     <div class="index">
         <div class="header">
+            <el-button size="small" type="success" style="margin-left: 5px;" @click="showDialog('new')">新增章节</el-button>
             <p>当前有声书: </p>
             <el-select v-model="selectedAudio" size="small" style="margin-left: 10px;">
                 <el-option label="abc" value="abc"></el-option>
@@ -16,33 +17,17 @@
                     :close-on-click-modal="false"
                     @closed="dialogClosed"
                     width="600px">
-                <el-form ref="addAudioForm" size="small" :model="addAudioForm" :rules="addAudioRules"
+                <el-form ref="addChapterForm" size="small" :model="addChapterForm" :rules="addChapterRules"
                          label-width="80px"
                          style="width: 500px;">
-                    <el-form-item label="书名" prop="audioName">
-                        <el-input v-model.trim="addAudioForm.audioName" :disabled="dialogType!=='new'"></el-input>
+                    <el-form-item label="序号" prop="audioName">
+                        <el-input v-model.trim="addChapterForm.chapter" placeholder="根据序号大小排序"></el-input>
                     </el-form-item>
-                    <el-form-item label="类型" prop="audioType">
-                        <el-select v-model.trim="addAudioForm.audioType">
-                            <el-option label="英文" :value="1"></el-option>
-                            <el-option label="中文" :value="2"></el-option>
-                        </el-select>
+                    <el-form-item label="章节标题" prop="audioName">
+                        <el-input v-model.trim="addChapterForm.title"></el-input>
                     </el-form-item>
-                    <el-form-item label="封面">
-                        <el-upload
-                                action="123"
-                                ref="coverUpload"
-                                :on-change="coverChange"
-                                :on-remove="coverChange"
-                                :limit="1"
-                                :on-exceed="coverExceed"
-                                accept="image/jpg,image/jpeg"
-                                :auto-upload="false"
-                                :before-upload="coverValidate"
-                                list-type="picture">
-                            <el-button size="small" type="primary" :disabled="coverList.length>=1">点击上传</el-button>
-                            <div slot="tip">只能上传jpg格式图片,且不超过2M</div>
-                        </el-upload>
+                    <el-form-item label="摘要" prop="audioName">
+                        <el-input v-model.trim="addChapterForm.abstract" type="textarea"></el-input>
                     </el-form-item>
                 </el-form>
                 <span slot="footer" class="dialog-footer">
@@ -52,13 +37,13 @@
                             type="primary"
                             :loading="addAudioBtnLoading"
                             v-if="dialogType === 'new'"
-                            @click="addAudio">新 增</el-button>
+                            @click="addChapter">新 增</el-button>
                     <el-button
                             size="small"
                             type="primary"
                             :loading="addAudioBtnLoading"
                             v-else-if="dialogType === 'change'"
-                            @click="changeAudio">修 改</el-button>
+                            @click="changeChapter">修 改</el-button>
                 </span>
             </el-dialog>
         </div>
@@ -69,16 +54,18 @@
                     border
                     stripe>
                 <el-table-column
-                        prop="id"
-                        label="编号">
+                        prop="chapter"
+                        label="章节序号">
                 </el-table-column>
                 <el-table-column
-                        prop="audioName"
-                        label="书名">
+                        prop="title"
+                        label="标题">
                 </el-table-column>
                 <el-table-column
-                        prop="audioType"
-                        label="类别">
+                        label="音频">
+                    <template slot-scope="scope">
+                        {{/^default/.test(scope.row.audioPath)?'未上传':'已上传'}}
+                    </template>
                 </el-table-column>
                 <el-table-column
                         prop="createUser"
@@ -91,7 +78,6 @@
                 <el-table-column
                         label="操作">
                     <template slot-scope="scope">
-                        <el-button type="text" size="small" @click="toChapterDetail(scope.row)">章节信息</el-button>
                         <el-button type="text" size="small" @click="showDialog('change',scope.row)">修改</el-button>
                         <el-button type="text" size="small" @click="audioDelete(scope.row)">删除
                         </el-button>
@@ -118,7 +104,8 @@
         deleteAudio
     } from '../../../common/api/audio';
     import {
-        getAllChapterById
+        getAllChapterById,
+        chapterAdd
     } from '../../../common/api/chapter';
 
 
@@ -143,28 +130,39 @@
                 dialogType: 'new',
                 dialogTitle: '新 增',
                 // 注册表单
-                addAudioForm: {
+                addChapterForm: {
                     id: '',
-                    audioName: '',
-                    audioType: 1,
+                    chapter: '',
+                    title: '',
+                    abstract: ''
                 },
-                addAudioRules: {
-                    audioName: [
+                addChapterRules: {
+                    chapter: [
                         {
                             required: true,
-                            message: '有声书名称不可为空',
+                            message: '序号不可为空',
+                            trigger: 'change'
+                        },
+                        {
+                            type: 'number',
+                            message: '序号必须为数字值'
+                        }
+                    ],
+                    title: [
+                        {
+                            required: true,
+                            message: '标题不可为空',
                             trigger: 'change'
                         }
                     ],
-                    audioType: [
+                    abstract: [
                         {
                             required: true,
-                            message: '请选择有声书类型',
+                            message: '摘要不可为空',
                             trigger: 'change'
                         }
                     ]
                 },
-                coverList: [],
                 addAudioBtnLoading: false,
                 // audio选择下拉框
                 selectedAudio: -1,
@@ -205,9 +203,10 @@
                 this.dialogType = type;
                 if (type !== 'new') {
                     this.dialogTitle = '编 辑';
-                    this.addAudioForm.id = data.id;
-                    this.addAudioForm.audioName = data.audioName;
-                    this.addAudioForm.audioType = data.audioType;
+                    this.addChapterForm.id = data.id;
+                    this.addChapterForm.title = data.title;
+                    this.addChapterForm.abstract = data.abstract;
+                    this.addChapterForm.chapter = data.chapter;
                 } else {
                     this.dialogTitle = '新 增';
                 }
@@ -215,36 +214,31 @@
             },
             dialogClosed() {
                 // 关闭时初始化内容
-                this.$refs.addAudioForm.resetFields();
-                this.addAudioForm = {
+                this.$refs.addChapterForm.resetFields();
+                this.addChapterForm = {
                     id: '',
-                    audioName: '',
-                    audioType: 1,
+                    title: '',
+                    abstract: '',
+                    chapter: ''
                 };
-                this.coverList.splice(0);
-                this.$refs.coverUpload.clearFiles();
             },
-            addAudio() {
-                this.$refs.addAudioForm.validate((valid) => {
+            addChapter() {
+                this.$refs.addChapterForm.validate((valid) => {
                     if (valid) {
-                        if (this.coverList.length !== 1) {
-                            this.$message.warning('请选择封面图片');
-                            return;
-                        }
                         this.addAudioBtnLoading = true;
                         const data = {
-                            id: this.addAudioForm.id,
-                            audioName: this.addAudioForm.audioName,
-                            audioType: this.addAudioForm.audioType,
-                            cover: this.coverList[0].raw
+                            title: this.addChapterForm.title,
+                            abstract: this.addChapterForm.abstract,
+                            chapter: this.addChapterForm.chapter,
+                            belongedAudio: 7 || this.selectedAudio
                         };
-                        addAudio(data).then((response) => {
+                        chapterAdd(data).then((response) => {
                             if (response.status === 200 && response.data.code === 0) {
                                 this.dialogVisible = false;
-                                this.$message.success('新增有声书成功');
+                                this.$message.success('新增章节成功');
                                 this.updateTable();
                             } else {
-                                this.$message.warning('有声书新增失败: ' + response.data.message);
+                                this.$message.warning('有声书章节失败: ' + response.data.message);
                             }
                         }).catch((err) => {
                             console.log('有声书新增失败: ', err);
@@ -256,8 +250,8 @@
                     }
                 });
             },
-            changeAudio() {
-                this.$refs.addAudioForm.validate((valid) => {
+            changeChapter() {
+                this.$refs.addChapterForm.validate((valid) => {
                     if (valid) {
                         this.addAudioBtnLoading = true;
                         const data = {
@@ -415,7 +409,7 @@
 
             p {
                 display: inline-block;
-                margin-left: 5px;
+                margin-left: 10px;
                 color: #555;
                 font-size: 14px;
                 font-weight: 400;

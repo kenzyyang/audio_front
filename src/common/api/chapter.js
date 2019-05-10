@@ -25,7 +25,30 @@ const getAllChapterById = (data) => {
     return axios.post(url, params);
 };
 
+/**
+ *  @author:  kenzyyang
+ *  @date:  2019-5-10
+ *  @desc:  新增章节接口
+ * */
+const chapterAdd = (data) => {
+    const url = '/chapter/chapterAdd';
+    const {
+        title,
+        abstract,
+        chapter,
+        belongedAudio
+    } = data;
+    const params = {
+        title,
+        abstract,
+        chapter,
+        belongedAudio
+    };
+    return axios.post(url, params);
+};
+
 
 export {
-    getAllChapterById
+    getAllChapterById,
+    chapterAdd
 };

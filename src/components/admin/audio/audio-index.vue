@@ -303,35 +303,6 @@
                     });
                 });
             },
-            userSetAdmin(bool, row) {
-                this.tableLoading = true;
-                const data = {
-                    id: row.id,
-                    role: bool ? 1 : 2
-                };
-                userSertAdmin(data).then((response) => {
-                    if (response.status === 200 && response.data.code === 0) {
-                        this.$message.success('操作成功');
-                        this.updateTable();
-                    } else {
-                        this.$message.warning('操作失败: ' + response.data.message);
-                        this.tableLoading = false;
-                    }
-                }).catch((err) => {
-                    console.log('操作失败: ' + err);
-                    this.tableLoading = false;
-                });
-            },
-            // role转换为中文
-            roleToName(role) {
-                if (role === 2) {
-                    return '普通用户';
-                } else if (role === 1) {
-                    return '管理员';
-                } else if (role === 0) {
-                    return '超级管理员';
-                }
-            },
             // 跳转到章节管理
             toChapterDetail(){
 

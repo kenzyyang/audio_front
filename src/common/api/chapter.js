@@ -47,8 +47,23 @@ const chapterAdd = (data) => {
     return axios.post(url, params);
 };
 
+/**
+ *  @author:  kenzyyang
+ *  @date:  2019-5-10
+ *  @desc:  章节删除接口
+ * */
+const chapterDelete = (data) => {
+    const url = '/chapter/chapterDelete';
+    const {id} = data;
+    const params = {
+        id
+    };
+    return axios.post(url, params);
+};
+
 
 export {
     getAllChapterById,
-    chapterAdd
+    chapterAdd,
+    chapterDelete
 };

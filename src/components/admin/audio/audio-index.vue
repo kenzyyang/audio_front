@@ -260,9 +260,9 @@
                 this.coverList.splice(0);
                 this.coverList.push(...fileList);
             },
-            coverValidate() {
+            coverValidate(file,fileList) {
                 // 检查文件类型和大小
-                if (file.type !== 'image/jpg' || file.type !== 'image/jpeg') {
+                if (file.type !== 'image/jpg' && file.type !== 'image/jpeg') {
                     this.$message.warning('图片仅支持 jpg/jpeg 格式');
                     fileList.splice(0);
                     return false;

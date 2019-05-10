@@ -10,6 +10,56 @@
                         :value="audio.id"
                         :key="audio.id"></el-option>
             </el-select>
+        </div>
+        <div class="table" style="width: 100%;">
+            <el-table
+                    v-loading="tableLoading"
+                    :data="tableData"
+                    border
+                    stripe>
+                <el-table-column
+                        prop="chapter"
+                        label="章节序号">
+                </el-table-column>
+                <el-table-column
+                        prop="title"
+                        label="标题">
+                </el-table-column>
+                <el-table-column
+                        label="音频">
+                    <template slot-scope="scope">
+                        {{/^default/.test(scope.row.audioPath)?'未上传':'已上传'}}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                        prop="createUser"
+                        label="创建人">
+                </el-table-column>
+                <el-table-column
+                        prop="createdTime"
+                        label="创建时间">
+                </el-table-column>
+                <el-table-column
+                        label="操作">
+                    <template slot-scope="scope">
+                        <el-button type="text" size="small" @click="showUploadDialog(scope.row)">上传录音</el-button>
+                        <el-button type="text" size="small" @click="showDialog('change',scope.row)">修改</el-button>
+                        <el-button type="text" size="small" @click="chapterDelete(scope.row)">删除
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+        <div class="pagination">
+            <el-pagination
+                    @current-change="currentChange"
+                    :current-page="currentPage"
+                    :page-size="10"
+                    layout="total, prev, pager, next, jumper"
+                    :total="total">
+            </el-pagination>
+        </div>
+        <div class="dialog">
             <el-dialog
                     :title="dialogTitle"
                     :visible.sync="dialogVisible"
@@ -46,54 +96,42 @@
                             @click="changeChapter">修 改</el-button>
                 </span>
             </el-dialog>
-        </div>
-        <div class="table" style="width: 100%;">
-            <el-table
-                    v-loading="tableLoading"
-                    :data="tableData"
-                    border
-                    stripe>
-                <el-table-column
-                        prop="chapter"
-                        label="章节序号">
-                </el-table-column>
-                <el-table-column
-                        prop="title"
-                        label="标题">
-                </el-table-column>
-                <el-table-column
-                        label="音频">
-                    <template slot-scope="scope">
-                        {{/^default/.test(scope.row.audioPath)?'未上传':'已上传'}}
-                    </template>
-                </el-table-column>
-                <el-table-column
-                        prop="createUser"
-                        label="创建人">
-                </el-table-column>
-                <el-table-column
-                        prop="createdTime"
-                        label="创建时间">
-                </el-table-column>
-                <el-table-column
-                        label="操作">
-                    <template slot-scope="scope">
-                        <el-button type="text" size="small" @click="showDialog('change',scope.row)">修改</el-button>
-                        <!-- :todo-->
-                        <el-button type="text" size="small" @click="chapterDelete(scope.row)">删除
-                        </el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </div>
-        <div class="pagination">
-            <el-pagination
-                    @current-change="currentChange"
-                    :current-page="currentPage"
-                    :page-size="10"
-                    layout="total, prev, pager, next, jumper"
-                    :total="total">
-            </el-pagination>
+            <el-dialog
+                    title="上传录音"
+                    :visible.sync="uploadDialogVisible"
+                    :close-on-click-modal="false"
+                    @closed="uploadDialogClosed"
+                    @opened="uploadDialogOpened"
+                    width="600px">
+                <!-- :todo 后续更改上传链接 -->
+                <el-upload
+                        class="upload-demo"
+                        ref="upload"
+                        name="audio"
+                        action="http://localhost:3000/chapter/chapterAddUpload"
+                        :headers="{
+                            'Authorization': $store.state.user.token,
+                        }"
+                        :data="{
+                            id: selectedChapter
+                        }"
+                        :on-success="uploadSuccess"
+                        :limit="1"
+                        :on-exceed="audioExceed"
+                        :on-change="audioUploadChange"
+                        accept="audio/mp3"
+                        :before-upload="audioUploadValidate"
+                        list-type="picture"
+                        :auto-upload="false">
+                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                    <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                </el-upload>
+                <span slot="footer" class="dialog-footer">
+                    <el-button size="small" @click="uploadDialogVisible = false">关 闭</el-button>
+                     <el-button style="margin-left: 10px;" size="small" type="success" @click="uploadAudio">上 传
+                    </el-button>
+                </span>
+            </el-dialog>
         </div>
     </div>
 </template>
@@ -167,7 +205,11 @@
                 addChapterBtnLoading: false,
                 // audio选择下拉框
                 selectedAudio: -1,
-                audios: []
+                audios: [],
+                // 录音上传dialog
+                uploadDialogVisible: false,
+                selectedChapter: -1,
+                audioFileList: []
             }
         },
         methods: {
@@ -213,8 +255,8 @@
                 }
                 this.dialogVisible = true;
             },
-            dialogOpened(){
-                if(this.dialogType !== 'new'){
+            dialogOpened() {
+                if (this.dialogType !== 'new') {
                     this.$refs.addChapterForm.validate();
                 }
             },
@@ -272,21 +314,48 @@
                 });
             },
             // 文件上传相关
-            coverExceed() {
-                this.$message.warning('只能上传一张图片');
+            showUploadDialog(row) {
+                this.uploadDialogVisible = true;
+                this.selectedChapter = row.id;
             },
-            coverChange(file, fileList) {
-                this.coverList.splice(0);
-                this.coverList.push(...fileList);
+            uploadAudio() {
+                if (this.audioFileList.length === 0) {
+                    this.$message.warning('请选择一份录音上传');
+                }
+                else{
+                    this.$refs.upload.submit();
+                }
             },
-            coverValidate() {
+            uploadSuccess() {
+                this.$message.success('上传录音成功');
+                this.updateTable();
+                this.uploadDialogVisible = false;
+            },
+            uploadError() {
+                this.$message.warning('上传录音失败');
+                this.updateTable();
+            },
+            uploadDialogOpened() {
+
+            },
+            uploadDialogClosed() {
+
+            },
+            audioExceed() {
+                this.$message.warning('只能上传一份录音');
+            },
+            audioUploadChange(file, fileList) {
+                this.audioFileList.splice(0);
+                this.audioFileList.push(...fileList);
+            },
+            audioUploadValidate(file, fileList) {
                 // 检查文件类型和大小
-                if (file.type !== 'image/jpg' || file.type !== 'image/jpeg') {
-                    this.$message.warning('图片仅支持 jpg/jpeg 格式');
+                if (file.type !== 'audio/mp3' && file.type !== 'audio/mpeg') {
+                    this.$message.warning('录音只支持 mp3 格式');
                     return false;
                 }
-                if (file.size / 1024 / 1024 > 2) {
-                    this.$message.warning('图片大小不要超过2M');
+                if (file.size / 1024 / 1024 > 500) {
+                    this.$message.warning('录音大小不要超过500M');
                     return false;
                 }
             },

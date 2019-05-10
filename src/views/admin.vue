@@ -19,6 +19,10 @@
                     <i class="fa fa-bullhorn fa-fw"></i>
                     <span slot="title">有声书管理</span>
                 </el-menu-item>
+                <el-menu-item index="chapter" @click="menuClicked('chapter')">
+                    <i class="fa fa-bullhorn fa-fw"></i>
+                    <span slot="title">章节管理</span>
+                </el-menu-item>
             </el-menu>
         </div>
         <div class="main">
@@ -84,7 +88,7 @@
         .slide {
             margin-top: 2px;
             border-right: solid 1px #e6e6e6;
-            width: 200px;
+            width: 198px;
             height: 800px;
 
             .slide-menu {
@@ -100,8 +104,8 @@
         }
 
         .main {
+            width: 100%;
             padding: 20px;
-            flex-grow: 1;
         }
 
         /* 取消el menu 的右边界样式 */

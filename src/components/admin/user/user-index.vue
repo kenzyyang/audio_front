@@ -416,11 +416,12 @@
 <style scoped lang="scss">
     .index {
         width: 100%;
-        min-width: 1200px;
+        min-width: 1000px;
         display: flex;
         justify-content: flex-start;
         align-items: flex-start;
         flex-wrap: wrap;
+        overflow-x: hidden;
 
         .header {
             width: 100%;

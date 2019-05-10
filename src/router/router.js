@@ -9,9 +9,11 @@ import admin from "../views/admin";
 import user from '../components/admin/user/user-index';
 import adminNews from '../components/admin/news/news-index';
 import adminAudio from '../components/admin/audio/audio-index';
+import adminChapter from '../components/admin/audio/chapter-index';
 // home
 import homeNews from '../components/news/index';
 import homeAudio from '../components/home/audio/audio-index';
+import homeDetail from '../components/home/audio/audio-detail';
 
 Vue.use(Router);
 
@@ -50,6 +52,16 @@ export default new Router({
                             path: 'audio',
                             name: 'audio',
                             component: adminAudio
+                        },
+                        {
+                            path: 'chapter',
+                            name: 'chapter',
+                            component: adminChapter
+                        },
+                        {
+                            path: 'chapter/:audioId',
+                            name: 'chapter',
+                            component: adminChapter
                         }
                     ]
                 },
@@ -57,11 +69,18 @@ export default new Router({
                     path: 'news',
                     name: 'news',
                     component: homeNews
-                },
+                }
+                ,
                 {
                     path: 'audio',
                     name: 'audio',
                     component: homeAudio
+                }
+                ,
+                {
+                    path: 'audio/detail/:audioId',
+                    name: 'audio-detail',
+                    component: homeDetail
                 }
             ]
         },

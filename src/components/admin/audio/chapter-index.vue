@@ -1,7 +1,15 @@
 <template>
     <div class="index">
         <div class="header">
-            <el-button size="small" type="success" @click="showDialog('new')">新增有声书</el-button>
+            <p>当前有声书: </p>
+            <el-select v-model="selectedAudio" size="small" style="margin-left: 10px;">
+                <el-option label="abc" value="abc"></el-option>
+                <el-option
+                        :label="audio.audioName"
+                        :value="audio.id"
+                        v-for="audio in audios"
+                        :key="audio.id"></el-option>
+            </el-select>
             <el-dialog
                     :title="dialogTitle"
                     :visible.sync="dialogVisible"
@@ -61,8 +69,12 @@
                     border
                     stripe>
                 <el-table-column
-                        prop="chapter"
-                        label="章节序号">
+                        prop="id"
+                        label="编号">
+                </el-table-column>
+                <el-table-column
+                        prop="audioName"
+                        label="书名">
                 </el-table-column>
                 <el-table-column
                         prop="audioType"
@@ -105,6 +117,9 @@
         getAllAudio,
         deleteAudio
     } from '../../../common/api/audio';
+    import {
+        getAllChapterById
+    } from '../../../common/api/chapter';
 
 
     export default {
@@ -150,17 +165,21 @@
                     ]
                 },
                 coverList: [],
-                addAudioBtnLoading: false
+                addAudioBtnLoading: false,
+                // audio选择下拉框
+                selectedAudio: -1,
+                audios: []
             }
         },
         methods: {
             updateTable() {
                 this.tableLoading = true;
                 let data = {
+                    id: 7 || this.selectedAudio,
                     currentPage: this.currentPage,
                     currentSize: 10
                 };
-                getAllAudio(data).then((response) => {
+                getAllChapterById(data).then((response) => {
                     if (response.status === 200 && response.data.code === 0) {
                         const result = response.data.data;
                         let tableData = [];
@@ -172,7 +191,7 @@
                         this.tableData.push(...tableData);
                     }
                 }).catch((err) => {
-                    console.log('请求有声书信息失败: ', err);
+                    console.log('请求有声书章节信息失败: ', err);
                 }).finally(() => {
                     this.tableLoading = false;
                 });
@@ -332,9 +351,21 @@
                     return '超级管理员';
                 }
             },
-            // 跳转到章节管理
-            toChapterDetail(){
-
+            // 初始化audio选择下拉框
+            initAudioSelect() {
+                const data = {
+                    currentPage: 1,
+                    currentSize: 1000000
+                };
+                getAllAudio(data).then((response) => {
+                    if (response.status === 200 && response.data.code === 0) {
+                        this.audios.push(...response.data.data.list);
+                    } else {
+                        this.$message.warning('获取audio信息失败: ' + response.data.message);
+                    }
+                }).catch((err) => {
+                    console.log('获取audio信息失败: ' + err);
+                });
             }
         },
         computed: {
@@ -362,6 +393,7 @@
                 this.isInit = true;
                 this.updateTable();
             }
+            this.initAudioSelect();
         }
     }
 </script>
@@ -377,6 +409,17 @@
 
         .header {
             width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+
+            p {
+                display: inline-block;
+                margin-left: 5px;
+                color: #555;
+                font-size: 14px;
+                font-weight: 400;
+            }
         }
 
         .table {

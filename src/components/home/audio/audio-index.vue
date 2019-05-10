@@ -12,7 +12,7 @@
             <div class="content-item" v-for="audio in myAudio">
                 <img :src="book" alt="">
                 <div>
-                    <p :title="audio.audioName">哈利波特与魔法石</p>
+                    <p :title="audio.audioName" @click="toAudioDetail(audio.id)">{{audio.audioName}}</p>
                 </div>
                 <span>kenzyyang</span>
             </div>
@@ -24,7 +24,7 @@
             <div class="content-item" v-for="audio in enAudio">
                 <img :src="'http://localhost:3000' + audio.coverPath" alt="">
                 <div>
-                    <p :title="audio.audioName">{{audio.audioName}}</p>
+                    <p :title="audio.audioName" @click="toAudioDetail(audio.id)">{{audio.audioName}}</p>
                 </div>
                 <span>{{audio.createUser}}</span>
             </div>
@@ -36,7 +36,7 @@
             <div class="content-item" v-for="audio in cnAudio">
                 <img :src="'http://localhost:3000' + audio.coverPath" alt="">
                 <div>
-                    <p :title="audio.audioName">{{audio.audioName}}</p>
+                    <p :title="audio.audioName" @click="toAudioDetail(audio.id)">{{audio.audioName}}</p>
                 </div>
                 <span>kenzyyang</span>
             </div>
@@ -45,7 +45,6 @@
 </template>
 
 <script>
-    import book from "../../../assets/home/images/book.jpeg";
     import {
         getAllAudio
     } from "../../../common/api/audio"
@@ -57,7 +56,6 @@
         name: "home-audio",
         data() {
             return {
-                book: book,
                 myAudio: [],
                 enAudio: [],
                 cnAudio: []
@@ -92,6 +90,11 @@
                 }).finally(() => {
 
                 });
+            },
+            toAudioDetail(id) {
+                this.$router.push({
+                    path: '/audio/detail/' + id
+                });
             }
         },
         mounted() {
@@ -104,6 +107,7 @@
     .home-audio {
         width: 1200px;
         margin-bottom: 30px;
+
         .title {
             padding-bottom: 5px;
             padding-left: 10px;

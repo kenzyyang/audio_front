@@ -13,11 +13,12 @@ import axios from "./audio-axios";
  * */
 const addAudio = (data) => {
     const url = '/audio/audioAdd';
-    const {audioName, audioType, cover} = data;
+    const {audioName, audioType, audioAbstract, cover} = data;
     let params = new FormData();
     params.append('cover', cover);
     params.append('audioName', audioName);
     params.append('audioType', audioType);
+    params.append('audioAbstract', audioAbstract);
     return axios.post(url, params, {
         headers: {
             'Content-type': 'multipart/form-data'
@@ -40,13 +41,51 @@ const getAllAudio = (data) => {
 };
 
 /**
+ *  @author:  kenzyyang
+ *  @date: 2019-5-11
+ *  @desc:  获取一个audio信息接口
+ *  @param:  id  number  有声书id
+ * */
+const getOneAudio = (data) => {
+    const {
+        id
+    } = data;
+    const url = '/audio/audioGetOne';
+    return axios.post(url, {
+        id: id
+    });
+};
+
+/**
+ *  @author:  kenzyyang
+ *  @date:  2019-5-11
+ *  @desc:  有声书信息修改接口
+ * */
+const audioChange = (data) => {
+    const {
+        id,
+        audioName,
+        audioAbstract,
+        audioType
+    } = data;
+    const params = {
+        id,
+        audioName,
+        audioAbstract,
+        audioType
+    };
+    const url = '/audio/audioChange';
+    return axios.post(url, params);
+};
+
+/**
  *  @method:  POST
  *  @desc:  删除有声书接口，仅超级管理员可使用
  *  @param:  id  number  有声书id
  * */
 const deleteAudio = (data) => {
     const url = '/audio/audioDelete';
-    const {id } =  data;
+    const {id} = data;
     const params = {
         id
     };
@@ -57,5 +96,7 @@ const deleteAudio = (data) => {
 export {
     addAudio,
     getAllAudio,
-    deleteAudio
+    deleteAudio,
+    getOneAudio,
+    audioChange
 };

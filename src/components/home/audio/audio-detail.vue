@@ -2,16 +2,13 @@
     <div class="audio-detail">
         <div class="detail-header">
             <div class="detail-header-left">
-                <img :src="book" alt="">
+                <img :src="audioCover" alt="">
             </div>
             <div class="detail-header-right">
                 <div>
-                    <p class="audio-title">哈利波特</p>
+                    <p class="audio-title">{{audioName}}</p>
                     <p class="audio-introduce">
-                        这是和奇奇妙妙一起唱国学儿歌——让宝宝快乐启蒙！
-                        国学唱出来，好听又好记！让宝贝在潜移默化中记住唐诗、宋词、汉乐府、三字经等国学经典，和奇奇妙妙一起唱国学儿歌，领略经典的魅力！
-                        古诗词儿歌：有唐诗、宋词、汉乐府，涵盖了小学必背古诗词，从简单到复杂，从五言到七言，童音吟唱三遍+童音诵读一遍，让宝贝爱上古诗词！
-                        三字经儿歌：奇奇和妙妙把《三字经》唱出来，非常适合低幼小朋友识记。小朋友不用刻意背诵，优美的音乐，稚嫩的童音，作为磨耳朵内容就很好。
+                        {{audioAbstract}}
                     </p>
                     <div class="audio-play">
                         <div class="audio-play-inside">
@@ -28,31 +25,113 @@
                     有声书音频章节
                 </p>
             </div>
-            <div class="audio-list-item" v-for="i in 10" :key="i">
+            <div class="audio-list-item" v-for="(chapter, index) in chapters" :key="index">
                 <div>
-                    <p class="audio-list-item-order">{{i}}</p>
-                    <p class="audio-list-item-name">{{i}}</p>
+                    <p class="audio-list-item-order">{{(currentPage - 1) * 10 + index + 1}}</p>
+                    <p class="audio-list-item-name">{{chapter.title}}</p>
                 </div>
                 <div>
-                    <p class="audio-list-item-time">{{i}}</p>
+                    <p class="audio-list-item-time">{{chapter.createdTime}}</p>
                 </div>
             </div>
+        </div>
+        <div class="pagination">
+            <el-pagination
+                    @current-change="currentChange"
+                    :current-page="currentPage"
+                    :page-size="10"
+                    layout="total, prev, pager, next, jumper"
+                    :total="total">
+            </el-pagination>
         </div>
     </div>
 </template>
 
 <script>
     import book from "../../../assets/home/images/book.jpeg";
+    import {
+        getOneAudio
+    } from "../../../common/api/audio";
+    import {
+        getAllChapterById
+    } from "../../../common/api/chapter";
 
     export default {
         name: "audio-detail",
         data() {
             return {
-                book: book
+                book: book,
+                // 有声书信息相关
+                audioName: '',
+                audioAbstract: '',
+                audioCover: book,
+                // 章节信息相关
+                chapters: [],
+                //分页相关
+                currentPage: 1,
+                total: 0
+            }
+        },
+        methods: {
+            initAudio() {
+                const data = {
+                    id: this.audioId
+                };
+                getOneAudio(data).then((response) => {
+                    if (response.status === 200 && response.data.code === 0) {
+                        const audio = response.data.data;
+                        this.audioName = audio.audioName;
+                        this.audioAbstract = audio.audioAbstract;
+                        // todo 后端链接后续会更改
+                        this.audioCover = 'http://localhost:3000' + audio.coverPath;
+                    } else {
+                        this.$message.warning('获取有声书信息失败: ' + response.data.message);
+                    }
+                }).catch((err) => {
+                    console.log('获取有声书信息失败: ' + err);
+                });
+            },
+            currentChange(val) {
+                this.currentPage = val;
+                this.updateChapter();
+            },
+            updateChapter() {
+                const data = {
+                    id: this.audioId,
+                    currentPage: this.currentPage,
+                    currentSize: 10
+                };
+                getAllChapterById(data).then((response) => {
+                    if (response.status === 200 && response.data.code === 0) {
+                        this.total = response.data.data.count;
+                        const chapters = response.data.data.list;
+                        this.chapters.splice(0);
+                        this.chapters.push(...chapters);
+                    } else {
+                        this.$message.warning('获取有声书章节信息失败: ' + response.data.message);
+                    }
+                }).catch((err) => {
+                    console.log('获取有声书章节信息失败: ' + err);
+                });
+            }
+        },
+        computed: {
+            audioId: {
+                get() {
+                    return this.$route.params.audioId;
+                }
             }
         },
         mounted() {
-
+            if (isNaN(Number.parseInt(this.audioId))) {
+                this.$message.error('页面访问失败');
+                this.$router.push({
+                    path: '/audio'
+                })
+            } else {
+                this.initAudio();
+                this.updateChapter();
+            }
         }
     }
 </script>
@@ -153,6 +232,7 @@
                 align-items: center;
                 height: 40px;
                 border-bottom: 1px solid rgb(232, 232, 232);
+
                 .audio-list-item-order {
                     display: inline-block;
                     width: 30px;
@@ -160,14 +240,16 @@
                     margin-left: 20px;
                     color: #a3a3ac;
                 }
-                .audio-list-item-name{
+
+                .audio-list-item-name {
                     display: inline-block;
                     width: 400px;
                     margin-left: 30px;
                     font-size: 14px;
                     color: #333;
                 }
-                .audio-list-item-time{
+
+                .audio-list-item-time {
                     float: right;
                     margin-right: 50px;
                     font-size: 12px;
@@ -175,6 +257,13 @@
 
                 }
             }
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 5px;
         }
     }
 </style>

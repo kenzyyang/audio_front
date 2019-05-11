@@ -307,7 +307,6 @@
                             audioName: this.addAudioForm.audioName,
                             audioType: this.addAudioForm.audioType
                         };
-                        console.log(JSON.stringify(data), null, 4);
                     } else {
                         this.$message.error('校验不通过');
                     }
@@ -339,7 +338,7 @@
 
             },
             uploadDialogClosed() {
-
+                this.$refs.upload.clearFiles();
             },
             audioExceed() {
                 this.$message.warning('只能上传一份录音');

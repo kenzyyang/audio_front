@@ -6,7 +6,7 @@
 <template>
     <div class="admin">
         <div class="slide">
-            <el-menu default-active="user" class="slide-menu">
+            <el-menu :default-active="defaultActive" class="slide-menu">
                 <el-menu-item index="user" @click="menuClicked('user')">
                     <i class="fa fa-user-o fa-fw"></i>
                     <span slot="title">成员管理</span>
@@ -35,11 +35,26 @@
 
     export default {
         name: "admin",
+        data() {
+            return {
+                defaultActive: 'user'
+            }
+        },
         methods: {
             menuClicked(val) {
                 this.$router.push({
                     path: '/admin/' + val
                 });
+            },
+            initActiveTab() {
+                const url = location.href;
+                if (/user/.test(url)) {
+                    this.defaultActive = 'user';
+                } else if (/audio/.test(url)) {
+                    this.defaultActive = 'audio';
+                } else if (/chapter/.test(url)) {
+                    this.defaultActive = 'chapter';
+                }
             }
         },
         computed: {
@@ -52,8 +67,8 @@
         },
         watch: {
             userLoaded: {
-                handler(val){
-                    if(val){
+                handler(val) {
+                    if (val) {
                         if (this.userLoaded && this.userRole === 2) {
                             this.$message.warning('您无权限查看此页面');
                             this.$router.push({
@@ -71,6 +86,7 @@
                     path: '/home'
                 });
             }
+            this.initActiveTab();
 
         }
     }

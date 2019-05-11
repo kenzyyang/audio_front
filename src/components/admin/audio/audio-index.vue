@@ -6,13 +6,14 @@
                     :title="dialogTitle"
                     :visible.sync="dialogVisible"
                     :close-on-click-modal="false"
+                    @opened="dialogOpened"
                     @closed="dialogClosed"
                     width="600px">
                 <el-form ref="addAudioForm" size="small" :model="addAudioForm" :rules="addAudioRules"
                          label-width="80px"
                          style="width: 500px;">
                     <el-form-item label="书名" prop="audioName">
-                        <el-input v-model.trim="addAudioForm.audioName" :disabled="dialogType!=='new'"></el-input>
+                        <el-input v-model.trim="addAudioForm.audioName"></el-input>
                     </el-form-item>
                     <el-form-item label="类型" prop="audioType">
                         <el-select v-model.trim="addAudioForm.audioType">
@@ -20,7 +21,10 @@
                             <el-option label="中文" :value="2"></el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="封面">
+                    <el-form-item label="简介" prop="audioAbstract">
+                        <el-input v-model.trim="addAudioForm.audioAbstract"></el-input>
+                    </el-form-item>
+                    <el-form-item label="封面" v-if="dialogType === 'new'">
                         <el-upload
                                 action="123"
                                 ref="coverUpload"
@@ -65,8 +69,14 @@
                         label="编号">
                 </el-table-column>
                 <el-table-column
-                        prop="audioType"
+                        prop="audioName"
+                        label="书名">
+                </el-table-column>
+                <el-table-column
                         label="类别">
+                    <template slot-scope="scope">
+                        <p>{{typeDisplay(scope.row.audioType)}}</p>
+                    </template>
                 </el-table-column>
                 <el-table-column
                         prop="createUser"
@@ -103,9 +113,9 @@
     import {
         addAudio,
         getAllAudio,
-        deleteAudio
+        deleteAudio,
+        audioChange
     } from '../../../common/api/audio';
-
 
     export default {
         name: "user-index",
@@ -132,6 +142,7 @@
                     id: '',
                     audioName: '',
                     audioType: 1,
+                    audioAbstract: ''
                 },
                 addAudioRules: {
                     audioName: [
@@ -145,6 +156,13 @@
                         {
                             required: true,
                             message: '请选择有声书类型',
+                            trigger: 'change'
+                        }
+                    ],
+                    audioAbstract: [
+                        {
+                            required: true,
+                            message: '简介不可为空',
                             trigger: 'change'
                         }
                     ]
@@ -189,10 +207,16 @@
                     this.addAudioForm.id = data.id;
                     this.addAudioForm.audioName = data.audioName;
                     this.addAudioForm.audioType = data.audioType;
+                    this.addAudioForm.audioAbstract = data.audioAbstract;
                 } else {
                     this.dialogTitle = '新 增';
                 }
                 this.dialogVisible = true;
+            },
+            dialogOpened() {
+                if (this.dialogType !== 'new') {
+                    this.$refs.addAudioForm.validate();
+                }
             },
             dialogClosed() {
                 // 关闭时初始化内容
@@ -203,7 +227,9 @@
                     audioType: 1,
                 };
                 this.coverList.splice(0);
-                this.$refs.coverUpload.clearFiles();
+                if (this.dialogType === 'new') {
+                    this.$refs.coverUpload.clearFiles();
+                }
             },
             addAudio() {
                 this.$refs.addAudioForm.validate((valid) => {
@@ -217,7 +243,8 @@
                             id: this.addAudioForm.id,
                             audioName: this.addAudioForm.audioName,
                             audioType: this.addAudioForm.audioType,
-                            cover: this.coverList[0].raw
+                            cover: this.coverList[0].raw,
+                            audioAbstract: this.addAudioForm.audioAbstract
                         };
                         addAudio(data).then((response) => {
                             if (response.status === 200 && response.data.code === 0) {
@@ -244,9 +271,22 @@
                         const data = {
                             id: this.addAudioForm.id,
                             audioName: this.addAudioForm.audioName,
-                            audioType: this.addAudioForm.audioType
+                            audioType: this.addAudioForm.audioType,
+                            audioAbstract: this.addAudioForm.audioAbstract
                         };
-                        console.log(JSON.stringify(data), null, 4);
+                        audioChange(data).then((response) => {
+                            if (response.status === 200 && response.data.code === 0) {
+                                this.$message.success('修改有声书信息成功');
+                                this.updateTable();
+                                this.dialogVisible = false;
+                            } else {
+                                this.$message.warning('修改有声书信息失败： ' + response.data.message);
+                            }
+                        }).catch((err) => {
+                            console.log('修改有声书信息失败: ' + err);
+                        }).finally(() => {
+                            this.addAudioBtnLoading = false;
+                        });
                     } else {
                         this.$message.error('校验不通过');
                     }
@@ -260,7 +300,7 @@
                 this.coverList.splice(0);
                 this.coverList.push(...fileList);
             },
-            coverValidate(file,fileList) {
+            coverValidate(file, fileList) {
                 // 检查文件类型和大小
                 if (file.type !== 'image/jpg' && file.type !== 'image/jpeg') {
                     this.$message.warning('图片仅支持 jpg/jpeg 格式');
@@ -304,8 +344,19 @@
                 });
             },
             // 跳转到章节管理
-            toChapterDetail(){
+            toChapterDetail() {
 
+            },
+            // 类型转换为中文
+            typeDisplay(type) {
+                type = type - 0;
+                if (type === 1) {
+                    return '英文书';
+                } else if (type === 1) {
+                    return '中文书';
+                } else {
+                    return '未知类型';
+                }
             }
         },
         computed: {

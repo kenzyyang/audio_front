@@ -3,18 +3,21 @@
         <main-header></main-header>
         <router-view/>
         <main-footer></main-footer>
+        <audio-player></audio-player>
     </div>
 </template>
 
 <script>
     import mainHeader from "../components/index/main-header";
     import mainFooter from "../components/index/main-footer";
+    import audioPlayer from '../components/home/player/audio-player';
 
     export default {
         name: "index",
         components: {
             mainHeader,
-            mainFooter
+            mainFooter,
+            audioPlayer
         }
     }
 </script>

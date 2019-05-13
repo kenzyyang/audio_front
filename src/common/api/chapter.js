@@ -15,12 +15,14 @@ const getAllChapterById = (data) => {
     const {
         id,
         currentPage,
-        currentSize
+        currentSize,
+        uploaded
     } = data;
     const params = {
         id,
         currentPage,
-        currentSize
+        currentSize,
+        uploaded
     };
     return axios.post(url, params);
 };

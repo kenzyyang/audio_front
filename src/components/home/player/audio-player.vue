@@ -10,11 +10,11 @@
                 <img :src="book" alt="不存在">
             </div>
             <div class="audio-controller">
-                <i class="fa fa-step-backward backward controller"></i>
+                <i class="fa fa-step-backward backward controller" @click="audioPlayLast"></i>
                 <i class="fa fa-play-circle-o play controller" v-if="!audioStatus" @click="audioPlay"></i>
                 <i class="fa fa-pause-circle-o controller pause" v-else
                    @click="audioPause"></i>
-                <i class="fa fa-step-forward forward controller"></i>
+                <i class="fa fa-step-forward forward controller" @click="audioPlayNext"></i>
             </div>
             <div class="audio-process">
                 <div class="title">
@@ -67,8 +67,8 @@
             </div>
         </div>
         <div>
-            <audio ref="music" id="music" autoplay>
-                <source :src="source" type="audio/mpeg">
+            <audio ref="music" id="music" :src="audioSrc" autoplay>
+                <source :src="audioSrc" type="audio/mpeg">
             </audio>
         </div>
     </div>
@@ -84,10 +84,8 @@
                 book: book,
                 times: 1,
                 locked: false,
-                source: 'http://localhost:3000/audio/11.mp3',
                 player: null,
                 // audio相关参数
-                audioStatus: true,
                 currentTime: 0,
                 duration: 0,
                 // 播放时间
@@ -120,6 +118,7 @@
             },
             currentTimeChange() {
                 this.player.currentTime = this.currentTime;
+                this.audioPlay();
             },
             updateCurrentTime() {
                 this.currentTime = this.player.currentTime;
@@ -129,12 +128,41 @@
             },
             volumeChange() {
                 this.player.volume = this.volume / 100;
+            },
+            audioPlayLast(){
+                this.$store.commit('AUDIO_PLAY_LAST');
+            },
+            audioPlayNext(){
+                this.$store.commit('AUDIO_PLAY_NEXT');
+            },
+            audioPlay(){
+                this.$store.commit('AUDIO_PLAY');
             }
         },
         mounted() {
             this.player = document.getElementById('music');
+            this.$store.commit('INIT_AUDIO', this.player);
             this.player.oncanplay = this.initAudio;
             this.player.ontimeupdate = this.updateCurrentTime;
+        },
+        computed: {
+            audioStatus:{
+                get(){
+                    return this.$store.state.audio.audioStatus;
+                },
+                set(val){
+                    this.$store.commit('AUDIO_STATUS_CHANGE',val);
+                }
+            },
+            audioSrc:{
+                get(){
+                    return this.$store.state.audio.src;
+                },
+                set(val){
+                    this.$store.commit('AUDIO_SET_SRC',val);
+                }
+            },
+
         }
     }
 </script>

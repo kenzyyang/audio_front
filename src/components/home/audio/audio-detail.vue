@@ -11,9 +11,13 @@
                         {{audioAbstract}}
                     </p>
                     <div class="audio-play">
-                        <div class="audio-play-inside">
+                        <div class="audio-play-inside" @click="audioPlayAll" v-if="!audioPlayStatus">
                             <i class="fa fa-play-circle-o"></i>
                             <p>立即播放</p>
+                        </div>
+                        <div class="audio-play-inside" @click="audioPause" v-else>
+                            <i class="fa fa-pause-circle-o"></i>
+                            <p>停止播放</p>
                         </div>
                     </div>
                 </div>
@@ -99,7 +103,8 @@
                 const data = {
                     id: this.audioId,
                     currentPage: this.currentPage,
-                    currentSize: 10
+                    currentSize: 10,
+                    uploaded: true
                 };
                 getAllChapterById(data).then((response) => {
                     if (response.status === 200 && response.data.code === 0) {
@@ -113,6 +118,13 @@
                 }).catch((err) => {
                     console.log('获取有声书章节信息失败: ' + err);
                 });
+            },
+            audioPlayAll() {
+                this.$store.commit('AUDIO_SET_LIST', this.chapters);
+                this.$store.commit('AUDIO_PLAY');
+            },
+            audioPause() {
+                this.$store.commit('AUDIO_PAUSE');
             }
         },
         computed: {
@@ -120,6 +132,9 @@
                 get() {
                     return this.$route.params.audioId;
                 }
+            },
+            audioPlayStatus() {
+                return this.$store.state.audio.audioStatus;
             }
         },
         mounted() {

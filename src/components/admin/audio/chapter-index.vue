@@ -216,10 +216,11 @@
             updateTable() {
                 this.tableLoading = true;
                 let data = {
-                    id: this.selectedAudio,
-                    currentPage: this.currentPage,
-                    currentSize: 10
-                };
+                        id: this.selectedAudio,
+                        currentPage: this.currentPage,
+                        currentSize: 10,
+                        uploaded: "all"
+                    };
                 getAllChapterById(data).then((response) => {
                     if (response.status === 200 && response.data.code === 0) {
                         const result = response.data.data;
@@ -320,8 +321,7 @@
             uploadAudio() {
                 if (this.audioFileList.length === 0) {
                     this.$message.warning('请选择一份录音上传');
-                }
-                else{
+                } else {
                     this.$refs.upload.submit();
                 }
             },

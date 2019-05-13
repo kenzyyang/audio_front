@@ -19,11 +19,13 @@
     .home-footer {
         width: 100%;
         min-width: 1200px;
-        height: 120px;
+        height: 60px;
+        padding-bottom: 60px;
         background-color: black;
         color: white;
         display: flex;
         justify-content: center;
         align-items: center;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1);
     }
 </style>

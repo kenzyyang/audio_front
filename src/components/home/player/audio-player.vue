@@ -11,7 +11,9 @@
             </div>
             <div class="audio-controller">
                 <i class="fa fa-step-backward backward controller"></i>
-                <i class="fa fa-play-circle-o play controller"></i>
+                <i class="fa fa-play-circle-o play controller" v-if="!audioStatus" @click="audioPlay"></i>
+                <i class="fa fa-pause-circle-o controller pause" v-else
+                   @click="audioPause"></i>
                 <i class="fa fa-step-forward forward controller"></i>
             </div>
             <div class="audio-process">
@@ -21,17 +23,47 @@
                     </p>
                 </div>
                 <div class="slider">
-                    <el-slider v-model="value1" :show-tooltip="false"></el-slider>
+                    <el-slider v-model="currentTime" @change="currentTimeChange" :max="duration"
+                               :show-tooltip="false"></el-slider>
                 </div>
             </div>
+            <div class="audio-time">
+                <p>
+                    {{currentHours<10?'0'+currentHours:currentHours}}:
+                    {{currentMinutes<10?'0'+currentMinutes:currentMinutes}}:
+                    {{currentSeconds<10?'0'+currentSeconds:currentSeconds}}/
+                    {{totalHours<10?'0'+totalHours:totalHours}}:
+                    {{totalMinutes<10?'0'+totalMinutes:totalMinutes}}:
+                    {{totalSeconds<10?'0'+totalSeconds:totalSeconds}}
+                </p>
+            </div>
             <div class="audio-button-group">
-                <p>x&nbsp;&nbsp;{{times}}</p>
                 <i class="fa fa-download" style="margin-left: 25px;"></i>
-                <i class="fa fa-volume-up" style="margin-left: 20px;"></i>
+                <el-tooltip class="item" placement="top" effect="light">
+                    <div slot="content">
+                        <el-slider
+                                v-model="volume"
+                                :max="100"
+                                vertical
+                                @change="volumeChange"
+                                height="100px">
+                        </el-slider>
+                    </div>
+                    <i class="fa fa-volume-up" style="margin-left: 20px;"></i>
+                </el-tooltip>
                 <i class="fa fa-lock" style="margin-left: 20px;color: #409EFF;" @click="locked=!locked"
                    v-if="locked"></i>
                 <i class="fa fa-unlock" style="margin-left: 20px;" @click="locked=!locked" v-else></i>
-                <i class="fa fa-list-ul" style="margin-left: 20px;"></i>
+                <el-tooltip class="item" placement="top" effect="light">
+                    <div slot="content">
+                        播放列表
+                        <p>11</p>
+                        <p>11</p>
+                        <p>11</p>
+                        <p>11</p>
+                    </div>
+                    <i class="fa fa-list-ul" style="margin-left: 20px;"></i>
+                </el-tooltip>
             </div>
         </div>
         <div>
@@ -52,13 +84,57 @@
                 book: book,
                 times: 1,
                 locked: false,
-                source: 'http://dl.stream.qqmusic.qq.com/C400001D2YIg48iyRW.m4a?guid=8543671434&vkey=F45C4B54998CA81863ADBE171CB6297256091E46618CF01E16C0545BF8C6C913B52C06D4A9D8D94A6E73CFD4C9E3152911BF357D39DC0E9B&uin=0&fromtag=66',
-                player: null
+                source: 'http://localhost:3000/audio/11.mp3',
+                player: null,
+                // audio相关参数
+                audioStatus: true,
+                currentTime: 0,
+                duration: 0,
+                // 播放时间
+                currentHours: 0,
+                currentMinutes: 0,
+                currentSeconds: 0,
+                totalHours: 0,
+                totalMinutes: 0,
+                totalSeconds: 0,
+                // 声音
+                volume: 50
+            }
+        },
+        methods: {
+            audioPlay() {
+                this.player.play();
+                this.audioStatus = true;
+            },
+            audioPause() {
+                this.player.pause();
+                this.audioStatus = false;
+            },
+            initAudio() {
+                this.duration = this.player.duration;
+                // 初始化播放时间
+                this.player.volume = 0.5;
+                this.totalHours = Number.parseInt(this.duration / 3600);
+                this.totalMinutes = Number.parseInt(this.duration / 60);
+                this.totalSeconds = Number.parseInt(this.duration % 60);
+            },
+            currentTimeChange() {
+                this.player.currentTime = this.currentTime;
+            },
+            updateCurrentTime() {
+                this.currentTime = this.player.currentTime;
+                this.currentHours = Number.parseInt(this.currentTime / 3600);
+                this.currentMinutes = Number.parseInt(this.currentTime / 60);
+                this.currentSeconds = Number.parseInt(this.currentTime % 60);
+            },
+            volumeChange() {
+                this.player.volume = this.volume / 100;
             }
         },
         mounted() {
             this.player = document.getElementById('music');
-            console.log(this.player);
+            this.player.oncanplay = this.initAudio;
+            this.player.ontimeupdate = this.updateCurrentTime;
         }
     }
 </script>
@@ -116,6 +192,12 @@
                     font-weight: 300;
                 }
 
+                .pause {
+                    font-size: 36px;
+                    margin-left: 15px;
+                    color: #409EFF;
+                }
+
                 .forward {
                     font-size: 16px;
                     margin-left: 15px;
@@ -134,7 +216,7 @@
             /* 标题和进度条 */
             .audio-process {
                 margin-left: 30px;
-                width: 600px;
+                width: 450px;
                 height: 60px;
 
                 .title {
@@ -149,6 +231,19 @@
                     p:hover {
                         color: #409EFF;
                     }
+                }
+            }
+
+            .audio-time {
+                p {
+                    font-size: 14px;
+                    margin-left: 5px;
+                    display: inline-block;
+                    color: white;
+                }
+
+                p:hover {
+                    color: #409EFF;
                 }
             }
 
@@ -176,5 +271,10 @@
                 }
             }
         }
+
+    }
+
+    .el-tooltip__popper {
+        padding: 0;
     }
 </style>

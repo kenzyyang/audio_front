@@ -120,7 +120,12 @@
                 });
             },
             audioPlayAll() {
+                if (this.chapters.length === 0) {
+                    this.$message.warning('该有声书没有录音，无法播放');
+                    return;
+                }
                 this.$store.commit('AUDIO_SET_LIST', this.chapters);
+                this.$store.commit('AUDIO_SET_AUDIO_ID', this.audioId);
                 this.$store.commit('AUDIO_PLAY');
             },
             audioPause() {
@@ -134,7 +139,11 @@
                 }
             },
             audioPlayStatus() {
-                return this.$store.state.audio.audioStatus;
+                if (this.$store.state.audio.audioId - 0 === this.audioId - 0) {
+                    return this.$store.state.audio.audioStatus;
+                } else {
+                    return false;
+                }
             }
         },
         mounted() {

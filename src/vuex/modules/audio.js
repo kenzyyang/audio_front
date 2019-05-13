@@ -19,7 +19,9 @@ export default {
         ],
         // audio播放相关
         audioStatus: false,
-        index: 0
+        index: 0,
+        // 当前播放的audioId
+        audioId: -1
 
     },
     mutations: {
@@ -27,11 +29,14 @@ export default {
             state.audio = audio;
         },
         // 元数据相关
-        AUDIO_SET_LIST(state, val) {
+        AUDIO_SET_LIST(state, list) {
             state.list.splice(0);
-            state.list.push(...val);
+            state.list.push(...list);
             state.src = '';
             state.index = 0;
+        },
+        AUDIO_SET_AUDIO_ID(state, id) {
+            state.audioId = id;
         },
         // 播放相关
         AUDIO_PLAY(state) {

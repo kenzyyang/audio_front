@@ -18,7 +18,7 @@
             </div>
             <div class="club-introduce club-box">
                 <div class="club-image">
-                    <img :src="introduce4" alt="">
+                    <img :src="introduce5" alt="">
                 </div>
                 <div class="club-title">
                     <p>
@@ -179,16 +179,23 @@
 
                 .club-content {
                     p {
-                        color: #888;
+                        color: #555;
                     }
                 }
             }
 
             .club-introduce {
-                background-color: #777777;
+                background-color: #efefef;
+                .club-title {
+                    p {
+                        color: #333;
+                    }
+                }
 
-                p {
-                    color: white;
+                .club-content {
+                    p {
+                        color: #555;
+                    }
                 }
             }
         }

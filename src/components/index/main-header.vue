@@ -17,14 +17,14 @@
                 <i class="fa fa-home"></i>
                 <p>首页</p>
             </div>
-            <div class="tab-item " :class="{
-                'tab-item_active': activeHeaderTab === 'news'
-            }"
-                 @click="headerTabClick('news')"
-                 style="margin-right: 70px;">
-                <i class="fa fa-newspaper-o"></i>
-                <p>新闻</p>
-            </div>
+<!--            <div class="tab-item " :class="{-->
+<!--                'tab-item_active': activeHeaderTab === 'news'-->
+<!--            }"-->
+<!--                 @click="headerTabClick('news')"-->
+<!--                 style="margin-right: 70px;">-->
+<!--                <i class="fa fa-newspaper-o"></i>-->
+<!--                <p>新闻</p>-->
+<!--            </div>-->
             <div class="tab-item" :class="{
                 'tab-item_active': activeHeaderTab === 'audio'
             }"

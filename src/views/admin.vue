@@ -11,10 +11,10 @@
                     <i class="fa fa-user-o fa-fw"></i>
                     <span slot="title">成员管理</span>
                 </el-menu-item>
-                <el-menu-item index="news" @click="menuClicked('news')">
-                    <i class="fa fa-newspaper-o fa-fw"></i>
-                    <span slot="title">新闻管理</span>
-                </el-menu-item>
+<!--                <el-menu-item index="news" @click="menuClicked('news')">-->
+<!--                    <i class="fa fa-newspaper-o fa-fw"></i>-->
+<!--                    <span slot="title">新闻管理</span>-->
+<!--                </el-menu-item>-->
                 <el-menu-item index="audio" @click="menuClicked('audio')">
                     <i class="fa fa-bullhorn fa-fw"></i>
                     <span slot="title">有声书管理</span>

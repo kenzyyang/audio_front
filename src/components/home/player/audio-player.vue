@@ -19,7 +19,7 @@
             <div class="audio-process">
                 <div class="title">
                     <p>
-                        hello
+                        {{audioTitle}}
                     </p>
                 </div>
                 <div class="slider">
@@ -54,19 +54,29 @@
                 <i class="fa fa-lock" style="margin-left: 20px;color: #409EFF;" @click="locked=!locked"
                    v-if="locked"></i>
                 <i class="fa fa-unlock" style="margin-left: 20px;" @click="locked=!locked" v-else></i>
-                <el-tooltip class="item" placement="top" effect="light">
-                    <div slot="content">
-                        播放列表
-                        <p>11</p>
-                        <p>11</p>
-                        <p>11</p>
-                        <p>11</p>
+                <el-popover
+                        ref="popover"
+                        placement="top"
+                        width="250"
+                        trigger="hover">
+                    <div class="audio-play">
+                        <p class="title">
+                            播放列表
+                        </p>
+                        <div style="overflow-y: scroll;height: 180px;margin-top: 10px;">
+                            <div class="item" v-for="(chapter,index) in audioChapters" :class="{
+                                'item_active': index + 1 === audioIndex
+                            }"
+                                 @click="audioPlayList(index + 1)">
+                                <p>{{chapter.title}}</p>
+                            </div>
+                        </div>
                     </div>
-                    <i class="fa fa-list-ul" style="margin-left: 20px;"></i>
-                </el-tooltip>
+                </el-popover>
+                <i class="fa fa-list-ul" style="margin-left: 20px;" v-popover:popover></i>
             </div>
         </div>
-        <div>
+        <div v-show="false">
             <audio ref="music" id="music" :src="audioSrc" autoplay>
                 <source :src="audioSrc" type="audio/mpeg">
             </audio>
@@ -129,14 +139,17 @@
             volumeChange() {
                 this.player.volume = this.volume / 100;
             },
-            audioPlayLast(){
+            audioPlayLast() {
                 this.$store.commit('AUDIO_PLAY_LAST');
             },
-            audioPlayNext(){
+            audioPlayNext() {
                 this.$store.commit('AUDIO_PLAY_NEXT');
             },
-            audioPlay(){
+            audioPlay() {
                 this.$store.commit('AUDIO_PLAY');
+            },
+            audioPlayList(index) {
+                this.$store.commit('AUDIO_PLAY_LIST', index);
             }
         },
         mounted() {
@@ -146,22 +159,37 @@
             this.player.ontimeupdate = this.updateCurrentTime;
         },
         computed: {
-            audioStatus:{
-                get(){
+            audioStatus: {
+                get() {
                     return this.$store.state.audio.audioStatus;
                 },
-                set(val){
-                    this.$store.commit('AUDIO_STATUS_CHANGE',val);
+                set(val) {
+                    this.$store.commit('AUDIO_STATUS_CHANGE', val);
                 }
             },
-            audioSrc:{
-                get(){
+            audioSrc: {
+                get() {
                     return this.$store.state.audio.src;
                 },
-                set(val){
-                    this.$store.commit('AUDIO_SET_SRC',val);
+                set(val) {
+                    this.$store.commit('AUDIO_SET_SRC', val);
                 }
             },
+            audioTitle: {
+                get() {
+                    return this.$store.state.audio.title;
+                }
+            },
+            audioChapters: {
+                get() {
+                    return this.$store.state.audio.list;
+                }
+            },
+            audioIndex: {
+                get() {
+                    return this.$store.state.audio.index;
+                }
+            }
 
         }
     }
@@ -304,5 +332,57 @@
 
     .el-tooltip__popper {
         padding: 0;
+    }
+
+    .audio-play {
+        width: 250px;
+        height: 200px;
+        padding: 10px;
+
+        .content {
+            width: 200px;
+            height: 300px;
+            overflow-x: hidden;
+        }
+
+        .title {
+            color: #409EFF;
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .item {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 25px;
+            cursor: pointer;
+
+            p {
+                font-size: 14px;
+                font-weight: 400;
+                color: #555;
+            }
+        }
+
+        .item:hover {
+            p {
+                color: #409EFF;
+            }
+        }
+
+        .item_active {
+            p {
+                color: #409EFF;
+            }
+        }
+
+        .is-vertical {
+            display: none;
+        }
+    }
+
+    .el-scrollbar__wrap {
+        margin: 0;
     }
 </style>

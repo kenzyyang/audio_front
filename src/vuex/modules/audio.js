@@ -21,7 +21,8 @@ export default {
         audioStatus: false,
         index: 0,
         // 当前播放的audioId
-        audioId: -1
+        audioId: -1,
+        title: '未播放'
 
     },
     mutations: {
@@ -42,6 +43,7 @@ export default {
         AUDIO_PLAY(state) {
             if (state.src === '') {
                 state.src = sourceHost + state.list[0].audioPath;
+                state.title = state.list[0].title;
             }
             state.audio.play();
             state.audioStatus = true;
@@ -59,6 +61,7 @@ export default {
             }
             state.index = number;
             state.src = sourceHost + state.list[number - 1].audioPath;
+            state.title = state.list[number - 1].title;
             state.audio.play();
             state.audioStatus = true;
         },
@@ -71,6 +74,7 @@ export default {
             }
             state.index = number;
             state.src = sourceHost + state.list[number - 1].audioPath;
+            state.title =  state.list[number - 1].title;
             state.audio.play();
             state.audioStatus = true;
         },
@@ -83,6 +87,7 @@ export default {
             }
             state.index = number;
             state.src = sourceHost + state.list[number - 1].audioPath;
+            state.audioPath =  state.list[number - 1].audioPath;
             state.audio.play();
             state.audioStatus = true;
         }

@@ -10,7 +10,7 @@
                     <p class="audio-introduce">
                         {{audioAbstract}}
                     </p>
-                    <div class="audio-play">
+                    <div class="audio-play-all">
                         <div class="audio-play-inside" @click="audioPlayAll" v-if="!audioPlayStatus">
                             <i class="fa fa-play-circle-o"></i>
                             <p>立即播放</p>
@@ -29,9 +29,13 @@
                     有声书音频章节
                 </p>
             </div>
-            <div class="audio-list-item" v-for="(chapter, index) in chapters" :key="index">
+            <div class="audio-list-item" v-for="(chapter, index) in chapters" :key="index"
+                 :class="{
+                    'audio-list-item_active': audioPlayStatus && audioIndex === index + 1
+                 }"
+                 @click="audioPlayList(index+1)">
                 <div>
-                    <p class="audio-list-item-order">{{(currentPage - 1) * 10 + index + 1}}</p>
+                    <p class="audio-list-item-order">{{(currentPage - 1) * 10 + index + 1}} {{ audioPlayStatus && audioIndex === index + 1?'播放中': ''}}</p>
                     <p class="audio-list-item-name">{{chapter.title}}</p>
                 </div>
                 <div>
@@ -130,6 +134,9 @@
             },
             audioPause() {
                 this.$store.commit('AUDIO_PAUSE');
+            },
+            audioPlayList(number) {
+                this.$store.commit('AUDIO_PLAY_LIST', number);
             }
         },
         computed: {
@@ -143,6 +150,11 @@
                     return this.$store.state.audio.audioStatus;
                 } else {
                     return false;
+                }
+            },
+            audioIndex: {
+                get() {
+                    return this.$store.state.audio.index;
                 }
             }
         },
@@ -202,7 +214,7 @@
                     color: #555;
                 }
 
-                .audio-play {
+                .audio-play-all {
                     margin-top: 30px;
                     display: flex;
                     align-items: center;
@@ -256,10 +268,12 @@
                 align-items: center;
                 height: 40px;
                 border-bottom: 1px solid rgb(232, 232, 232);
+                cursor: pointer;
+                color: #333;
 
                 .audio-list-item-order {
                     display: inline-block;
-                    width: 30px;
+                    width: 80px;
                     font-size: 14px;
                     margin-left: 20px;
                     color: #a3a3ac;
@@ -279,6 +293,18 @@
                     font-size: 12px;
                     color: #888;
 
+                }
+            }
+
+            .audio-list-item:hover {
+                .audio-list-item-name {
+                    color: #409EFF;
+                }
+            }
+
+            .audio-list-item_active {
+                .audio-list-item-name {
+                    color: #409EFF;
                 }
             }
         }

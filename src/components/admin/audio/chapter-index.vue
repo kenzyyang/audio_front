@@ -431,7 +431,7 @@
             if (/localhost/.test(location.href)) {
                 this.host = 'http://localhost:3000';
             } else {
-                this.host = 'http://http://whbcsonorous.club';
+                this.host = 'http://whbcsonorous.club';
             }
         },
         mounted() {

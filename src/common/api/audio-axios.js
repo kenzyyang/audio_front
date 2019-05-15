@@ -6,6 +6,7 @@
 import axios from 'axios';
 import store from '../../vuex/store';
 import {Message} from 'element-ui'
+
 let host;
 if (/localhost/.test(location.href)) {
     host = 'http://localhost:3000';

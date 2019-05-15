@@ -8,8 +8,6 @@ import axios from "./audio-axios";
 import Sha1 from 'sha1';
 // 引入store中的token
 import store from '../../vuex/store';
-// 测试阶段host写死
-let host = 'http://localhost:3000';
 
 /**
  * @method:  POST
@@ -18,7 +16,7 @@ let host = 'http://localhost:3000';
  * @param:  password string  密码
  * */
 const login = (data) => {
-    const url = host + '/user/userLogin';
+    const url = '/user/userLogin';
     const {userName, password} = data;
     const params = {
         userName,
@@ -36,7 +34,7 @@ const login = (data) => {
  * @param:  email string 用户邮箱
  * */
 const register = (data) => {
-    const url = host + '/user/userRegister';
+    const url = '/user/userRegister';
     const {userName, password, email, nickName} = data;
     const params = {
         userName,
@@ -55,7 +53,7 @@ const register = (data) => {
  * @param:  currentSize string  当前页尺寸
  * */
 const getAllUser = (data) => {
-    const url = host + '/user/getAllUser';
+    const url = '/user/getAllUser';
     const {currentPage, currentSize} = data;
     const params = {
         currentPage,

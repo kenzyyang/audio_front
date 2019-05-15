@@ -108,7 +108,7 @@
                         class="upload-demo"
                         ref="upload"
                         name="audio"
-                        action="http://localhost:3000/chapter/chapterAddUpload"
+                        :action="host+ '/chapter/chapterAddUpload'"
                         :headers="{
                             'Authorization': $store.state.user.token,
                         }"
@@ -209,18 +209,19 @@
                 // 录音上传dialog
                 uploadDialogVisible: false,
                 selectedChapter: -1,
-                audioFileList: []
+                audioFileList: [],
+                host: ''
             }
         },
         methods: {
             updateTable() {
                 this.tableLoading = true;
                 let data = {
-                        id: this.selectedAudio,
-                        currentPage: this.currentPage,
-                        currentSize: 10,
-                        uploaded: "all"
-                    };
+                    id: this.selectedAudio,
+                    currentPage: this.currentPage,
+                    currentSize: 10,
+                    uploaded: "all"
+                };
                 getAllChapterById(data).then((response) => {
                     if (response.status === 200 && response.data.code === 0) {
                         const result = response.data.data;
@@ -424,6 +425,13 @@
                         this.initAudioSelect();
                     }
                 }
+            }
+        },
+        created() {
+            if (/localhost/.test(location.href)) {
+                this.host = 'http://localhost:3000';
+            } else {
+                this.host = 'http://http://whbcsonorous.club';
             }
         },
         mounted() {

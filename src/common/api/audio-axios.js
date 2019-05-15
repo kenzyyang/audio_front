@@ -6,8 +6,12 @@
 import axios from 'axios';
 import store from '../../vuex/store';
 import {Message} from 'element-ui'
-// :todo 后续根据环境判断
-let host = 'http://localhost:3000';
+let host;
+if (/localhost/.test(location.href)) {
+    host = 'http://localhost:3000';
+} else {
+    host = 'http://whbcsonorous.club';
+}
 // 基础设置
 axios.defaults.baseURL = host;
 

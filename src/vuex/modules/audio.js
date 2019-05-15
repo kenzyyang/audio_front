@@ -3,7 +3,6 @@
  *  @date:  2019-5-13
  *  @desc:  全局控制audio播放
  * */
-const sourceHost = window.HOST;
 
 export default {
     state: {
@@ -42,7 +41,7 @@ export default {
         // 播放相关
         AUDIO_PLAY(state) {
             if (state.src === '') {
-                state.src = sourceHost + state.list[0].audioPath;
+                state.src = window.HOST + state.list[0].audioPath;
                 state.title = state.list[0].title;
             }
             state.audio.play();
@@ -60,7 +59,7 @@ export default {
                 number = state.list.length;
             }
             state.index = number;
-            state.src = sourceHost + state.list[number - 1].audioPath;
+            state.src = window.HOST + state.list[number - 1].audioPath;
             state.title = state.list[number - 1].title;
             state.audio.play();
             state.audioStatus = true;
@@ -73,7 +72,7 @@ export default {
                 number = state.index + 1;
             }
             state.index = number;
-            state.src = sourceHost + state.list[number - 1].audioPath;
+            state.src = window.HOST + state.list[number - 1].audioPath;
             state.title = state.list[number - 1].title;
             state.audio.play();
             state.audioStatus = true;
@@ -86,7 +85,7 @@ export default {
                 number = state.index - 1;
             }
             state.index = number;
-            state.src = sourceHost + state.list[number - 1].audioPath;
+            state.src = window.HOST + state.list[number - 1].audioPath;
             state.audioPath = state.list[number - 1].audioPath;
             state.audio.play();
             state.audioStatus = true;

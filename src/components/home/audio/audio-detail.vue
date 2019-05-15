@@ -35,7 +35,8 @@
                  }"
                  @click="audioPlayList(index+1)">
                 <div>
-                    <p class="audio-list-item-order">{{(currentPage - 1) * 10 + index + 1}} {{ audioPlayStatus && audioIndex === index + 1?'播放中': ''}}</p>
+                    <p class="audio-list-item-order">{{(currentPage - 1) * 10 + index + 1}} {{ audioPlayStatus &&
+                        audioIndex === index + 1?'播放中': ''}}</p>
                     <p class="audio-list-item-name">{{chapter.title}}</p>
                 </div>
                 <div>
@@ -90,8 +91,7 @@
                         const audio = response.data.data;
                         this.audioName = audio.audioName;
                         this.audioAbstract = audio.audioAbstract;
-                        // todo 后端链接后续会更改
-                        this.audioCover = 'http://localhost:3000' + audio.coverPath;
+                        this.audioCover = window.HOST + audio.coverPath;
                     } else {
                         this.$message.warning('获取有声书信息失败: ' + response.data.message);
                     }

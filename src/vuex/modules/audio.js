@@ -3,7 +3,7 @@
  *  @date:  2019-5-13
  *  @desc:  全局控制audio播放
  * */
-const sourceHost = 'http://localhost:3000';
+const sourceHost = window.HOST;
 
 export default {
     state: {
@@ -74,7 +74,7 @@ export default {
             }
             state.index = number;
             state.src = sourceHost + state.list[number - 1].audioPath;
-            state.title =  state.list[number - 1].title;
+            state.title = state.list[number - 1].title;
             state.audio.play();
             state.audioStatus = true;
         },
@@ -87,7 +87,7 @@ export default {
             }
             state.index = number;
             state.src = sourceHost + state.list[number - 1].audioPath;
-            state.audioPath =  state.list[number - 1].audioPath;
+            state.audioPath = state.list[number - 1].audioPath;
             state.audio.play();
             state.audioStatus = true;
         }

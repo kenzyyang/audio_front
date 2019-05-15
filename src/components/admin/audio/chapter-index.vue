@@ -210,7 +210,7 @@
                 uploadDialogVisible: false,
                 selectedChapter: -1,
                 audioFileList: [],
-                host: ''
+                host: window.HOST
             }
         },
         methods: {
@@ -425,13 +425,6 @@
                         this.initAudioSelect();
                     }
                 }
-            }
-        },
-        created() {
-            if (/localhost/.test(location.href)) {
-                this.host = 'http://localhost:3000';
-            } else {
-                this.host = 'http://whbcsonorous.club';
             }
         },
         mounted() {

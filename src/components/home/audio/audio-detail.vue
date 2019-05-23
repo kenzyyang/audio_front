@@ -34,12 +34,17 @@
                     'audio-list-item_active': audioPlayStatus && audioIndex === index + 1
                  }"
                  @click="audioPlayList(index+1)">
-                <div>
+                <div class="audio-list-item-title">
+                    <p>头部</p>
+                </div>
+                <div class="audio-list-item-content">身体</div>
+                <div class="audio-list-item-bottom">尾部</div>
+                <div v-show="false">
                     <p class="audio-list-item-order">{{(currentPage - 1) * 10 + index + 1}} {{ audioPlayStatus &&
                         audioIndex === index + 1?'播放中': ''}}</p>
                     <p class="audio-list-item-name">{{chapter.title}}</p>
                 </div>
-                <div>
+                <div v-show="false">
                     <p class="audio-list-item-time">{{chapter.createdTime}}</p>
                 </div>
             </div>
@@ -244,7 +249,7 @@
         }
 
         .audio-list {
-            width: 1000px;
+            width: 1200px;
             padding-left: 80px;
 
             .audio-list-title {
@@ -263,14 +268,61 @@
             }
 
             .audio-list-item {
-                display: flex;
+                display: inline-flex;
                 justify-content: space-between;
-                align-items: center;
-                height: 40px;
-                border-bottom: 1px solid rgb(232, 232, 232);
+                align-items: flex-start;
+                flex-wrap: wrap;
+                width: 200px;
+                height: 200px;
+                border: 1px solid rgb(232, 232, 232);
+                box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+                border-radius: 4px;
                 cursor: pointer;
                 color: #333;
 
+                .audio-list-item-title {
+                    width: 100%;
+                    height: 45px;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+
+                    p {
+                        font-size: 16px;
+                        font-weight: 600;
+                        margin-left: 15px;
+                    }
+                }
+
+                .audio-list-item-content {
+                    width: 100%;
+                    height: 115px;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+
+                    p {
+                        font-size: 16px;
+                        font-weight: 600;
+                        margin-left: 15px;
+                    }
+                }
+
+                .audio-list-item-bottom {
+                    width: 100%;
+                    height: 40px;
+                    display: flex;
+                    justify-content: flex-start;
+                    align-items: center;
+
+                    p {
+                        font-size: 16px;
+                        font-weight: 600;
+                        margin-left: 15px;
+                    }
+                }
+
+                // 下面代码后期删除
                 .audio-list-item-order {
                     display: inline-block;
                     width: 80px;
@@ -289,7 +341,6 @@
 
                 .audio-list-item-time {
                     float: right;
-                    margin-right: 50px;
                     font-size: 12px;
                     color: #888;
 
